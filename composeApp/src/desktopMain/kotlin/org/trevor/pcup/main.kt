@@ -8,7 +8,7 @@ import workreminders.composeapp.generated.resources.Res
 import workreminders.composeapp.generated.resources.app_name
 
 fun main() = application {
-    var appName: String;
+    var appName: String
     runBlocking {
         appName = getString(Res.string.app_name)
     }
