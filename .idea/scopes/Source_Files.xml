@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Source Files" pattern="file[WorkReminders.composeApp]:*/||file[WorkReminders.composeApp.commonMain]:*||file[WorkReminders.composeApp.main]:*||file[WorkReminders.composeApp.desktopMain]:*" />
+</component>
