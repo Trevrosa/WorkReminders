@@ -9,6 +9,11 @@ package org.trevor.pcup
  */
 interface Platform {
     val name: String
+    val battery: Float?
+
+    fun batteryString(): String {
+        return this.battery?.toString() ?: "battery level unimplemented"
+    }
 }
 
 /**
