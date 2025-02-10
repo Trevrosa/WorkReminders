@@ -1,3 +1,5 @@
+@file:Suppress("NAME_SHADOWING")
+
 package org.trevor.pcup
 
 import androidx.compose.foundation.Image
@@ -12,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomNavigation
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -24,12 +25,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import org.jetbrains.compose.resources.imageResource
+import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import workreminders.composeapp.generated.resources.Res
+import workreminders.composeapp.generated.resources.home
+import workreminders.composeapp.generated.resources.settings
 import workreminders.composeapp.generated.resources.skribi
+import workreminders.composeapp.generated.resources.today
 
 /**
  * A function that returns a [Unit]
@@ -45,27 +52,31 @@ fun NavBar(go1: FunUnit, go2: FunUnit, go3: FunUnit) {
      * Modifier for each button.
      */
     @Composable
-    fun RowScope.navBarButton(onClick: FunUnit) =
+    fun RowScope.NavBarButton(onClick: FunUnit) =
         Modifier
             .clickable(onClick = onClick)
             .background(MaterialTheme.colors.primary)
-            // rounded corner
-            .clip(RoundedCornerShape(40.dp))
             // make each row item equal size, filling the whole width.
             .fillMaxSize()
             .weight(1F)
 
+    /**
+     * Modifier for each button's contents.
+     */
     @Composable
-    fun navBarText(text: String, modifier: Modifier? = null) {
-        val customModifier: Modifier = Modifier
-            .background(Color.LightGray)
-            .padding(5.dp)
-            .clip(RoundedCornerShape(1.dp))
-        if (modifier == null) {
-            Text(text, modifier = customModifier)
-        } else {
-            Text(text, modifier = customModifier.then(modifier))
-        }
+    fun NavBarItem() = Modifier
+        // rounded corner
+        .clip(RoundedCornerShape(10))
+        .background(Color.DarkGray)
+        .padding(4.dp, 2.dp)
+
+    /**
+     * Create an [Image] with NavBarItem as its starting modifiers.
+     */
+    @Composable
+    fun NavBarImage(vector: ImageVector, description: String?, modifier: Modifier? = null) {
+        val modifier = NavBarItem().then(modifier)
+        Image(vector, description, modifier)
     }
 
     Box(Modifier.fillMaxSize()) {
@@ -75,14 +86,14 @@ fun NavBar(go1: FunUnit, go2: FunUnit, go3: FunUnit) {
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(navBarButton(go1), contentAlignment = Alignment.Center) {
-                navBarText("hi1")
+            Box(NavBarButton(go1), contentAlignment = Alignment.Center) {
+                NavBarImage(vectorResource(Res.drawable.home), "home icon")
             }
-            Box(navBarButton(go2), contentAlignment = Alignment.Center) {
-                navBarText("hi2")
+            Box(NavBarButton(go2), contentAlignment = Alignment.Center) {
+                NavBarImage(vectorResource(Res.drawable.today), "calendar icon")
             }
-            Box(navBarButton(go3), contentAlignment = Alignment.Center) {
-                navBarText("hi3")
+            Box(NavBarButton(go3), contentAlignment = Alignment.Center) {
+                NavBarImage(vectorResource(Res.drawable.settings), "settings icon")
             }
         }
     }
@@ -99,20 +110,12 @@ fun Home() {
 
     var show by remember { mutableStateOf(false) }
 
-    val go1 = {
-        show = true
-    }
-    val go2 = {
-        show = false
-    }
-    val go3 = {
-        show = !show
-    }
-    BottomNavigation { }
+    val go1 = { show = true }
+    val go2 = { show = false }
+    val go3 = { show = !show }
+
     MaterialTheme {
-        Row(horizontalArrangement = Arrangement.End) {
-            Text(platform.batteryString())
-        }
+        Text(platform.batteryString(), modifier = Modifier.zIndex(999F))
 
         NavBar(go1, go2, go3)
 
