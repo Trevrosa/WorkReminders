@@ -1,5 +1,7 @@
 package org.trevor.pcup
 
+import androidx.compose.runtime.Composable
+
 /**
  * Allows platform-specific functionality.
  *
@@ -17,4 +19,5 @@ interface Platform {
 /**
  * Each platform will define the `actual` function independently.
  */
+@Composable
 expect fun getPlatform(): Platform
