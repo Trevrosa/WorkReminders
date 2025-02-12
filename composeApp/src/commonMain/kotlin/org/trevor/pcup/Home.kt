@@ -1,126 +1,110 @@
-@file:Suppress("NAME_SHADOWING")
-
 package org.trevor.pcup
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
+import co.touchlab.kermit.Logger
+import com.patrykandpatrick.vico.multiplatform.cartesian.CartesianChartHost
+import com.patrykandpatrick.vico.multiplatform.cartesian.axis.HorizontalAxis
+import com.patrykandpatrick.vico.multiplatform.cartesian.axis.VerticalAxis
+import com.patrykandpatrick.vico.multiplatform.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.multiplatform.cartesian.data.columnSeries
+import com.patrykandpatrick.vico.multiplatform.cartesian.layer.rememberColumnCartesianLayer
+import com.patrykandpatrick.vico.multiplatform.cartesian.rememberCartesianChart
+import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.imageResource
-import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import workreminders.composeapp.generated.resources.Res
-import workreminders.composeapp.generated.resources.home
-import workreminders.composeapp.generated.resources.settings
 import workreminders.composeapp.generated.resources.skribi
-import workreminders.composeapp.generated.resources.today
-
-/**
- * A function that returns a [Unit]
- */
-typealias FunUnit = () -> Unit
-
-val NavBarHeight: Dp = 50.dp
+import kotlin.random.Random
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 @Composable
-@Preview
-fun NavBar(go1: FunUnit, go2: FunUnit, go3: FunUnit) {
-    /**
-     * Modifier for each button.
-     */
-    @Composable
-    fun RowScope.NavBarButton(onClick: FunUnit) =
-        Modifier
-            .clickable(onClick = onClick)
-            .background(MaterialTheme.colors.primary)
-            // make each row item equal size, filling the whole width.
-            .fillMaxSize()
-            .weight(1F)
-
-    /**
-     * Modifier for each button's contents.
-     */
-    @Composable
-    fun NavBarItem() = Modifier
-        // rounded corner
-        .clip(RoundedCornerShape(10))
-        .background(Color.DarkGray)
-        .padding(4.dp, 2.dp)
-
-    /**
-     * Create an [Image] with NavBarItem as its starting modifiers.
-     */
-    @Composable
-    fun NavBarImage(vector: ImageVector, description: String?, modifier: Modifier? = null) {
-        val modifier = NavBarItem().then(modifier)
-        Image(vector, description, modifier)
+fun ColumnScope.ChartPart() {
+    val modelProducer = remember { CartesianChartModelProducer() }
+    LaunchedEffect(Unit) {
+        modelProducer.runTransaction {
+            columnSeries { series(5, 2, 3, 1) }
+            Logger.d("created column series")
+        }
     }
+    CartesianChartHost(
+        rememberCartesianChart(
+            rememberColumnCartesianLayer(),
+            startAxis = VerticalAxis.rememberStart(),
+            bottomAxis = HorizontalAxis.rememberBottom(),
+        ), modelProducer
+    )
+    Logger.i("chart host init")
+}
 
-    Box(Modifier.fillMaxSize()) {
-        Row(
-            Modifier.fillMaxWidth().height(NavBarHeight).align(Alignment.BottomStart)
-                .background(MaterialTheme.colors.secondary),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(NavBarButton(go1), contentAlignment = Alignment.Center) {
-                NavBarImage(vectorResource(Res.drawable.home), "home icon")
-            }
-            Box(NavBarButton(go2), contentAlignment = Alignment.Center) {
-                NavBarImage(vectorResource(Res.drawable.today), "calendar icon")
-            }
-            Box(NavBarButton(go3), contentAlignment = Alignment.Center) {
-                NavBarImage(vectorResource(Res.drawable.settings), "settings icon")
-            }
+@Composable
+fun ColumnScope.ListPart() {
+    Column(
+        Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        val random = Random(Clock.System.now().toEpochMilliseconds())
+        fun randomTime(): Duration {
+            Logger.d("random int generated")
+            return random.nextInt(0, 120).minutes
+        }
+
+        repeat(3) {
+            AppRowItem("app$it", imageResource(Res.drawable.skribi), randomTime())
         }
     }
 }
 
-/**
- * The home screen of the app.
- */
 @Composable
 @Preview
-fun Home() {
-    // Do platform-specific work.
-    val platform = getPlatform()
-
-    var show by remember { mutableStateOf(false) }
-
-    val go1 = { show = true }
-    val go2 = { show = false }
-    val go3 = { show = !show }
-
-    MaterialTheme {
-        Text(platform.batteryString(), modifier = Modifier.zIndex(999F))
-
-        NavBar(go1, go2, go3)
-
-        if (show) {
-            Image(imageResource(Res.drawable.skribi), "xdd")
+fun ColumnScope.AppRowItem(name: String, icon: ImageBitmap, time: Duration) {
+    Box(
+        modifier = Modifier.clip(RoundedCornerShape(1.dp)).border(1.dp, Color.Black).height(20.dp)
+            .fillMaxWidth(0.7F)
+    ) {
+        Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
+            Image(
+                icon, "$name icon",
+                modifier = Modifier.fillMaxHeight(0.8F).clip(RoundedCornerShape(1.dp))
+            )
+            VerticalDivider(thickness = 2.dp)
+            Text(name)
+            VerticalDivider(thickness = 2.dp)
+            Text(time.toString())
         }
+    }
+}
+
+@Composable
+fun Home() {
+    Column {
+        ChartPart()
+        HorizontalDivider(thickness = 2.dp)
+        Spacer(Modifier.height(8.dp))
+        ListPart()
     }
 }

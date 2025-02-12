@@ -17,6 +17,6 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         title = appName,
     ) {
-        Home()
+        App()
     }
 }

@@ -39,12 +39,16 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material)
+            implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(libs.kermit)
+            implementation(libs.vico.multiplatform)
+            implementation(libs.kotlinx.datetime)
+//            implementation("com.moriatsushi.insetsx:insetsx:0.1.0-alpha10")
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -81,6 +85,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.material3.android)
     debugImplementation(compose.uiTooling)
 }
 
