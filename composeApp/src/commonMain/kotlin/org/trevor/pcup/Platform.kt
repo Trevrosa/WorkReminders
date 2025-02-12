@@ -13,7 +13,7 @@ interface Platform {
     val name: String
     val battery: Float?
 
-    fun batteryString(): String = this.battery?.toString() ?: "battery level unimplemented"
+    fun batteryString(): String = this.battery?.toString() ?: "battery level null"
 }
 
 /**

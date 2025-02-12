@@ -7,10 +7,16 @@ import platform.UIKit.UIDevice
 class IOSPlatform : Platform {
     override val name: String =
         UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
-    override val battery: Float
+    override val battery: Float?
         get() {
             UIDevice.currentDevice.batteryMonitoringEnabled = true
-            return UIDevice.currentDevice.batteryLevel
+            val battery = UIDevice.currentDevice.batteryLevel
+            return if (battery == -1F) {
+                Logger.i("battery monitoring not enabled")
+                null
+            } else {
+                battery
+            }
         }
 
     init {
