@@ -34,6 +34,10 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.vico.multiplatform)
+        }
+        iosMain.dependencies {
+            implementation(libs.vico.multiplatform)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -46,11 +50,16 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(libs.kermit)
-            implementation(libs.vico.multiplatform)
             implementation(libs.kotlinx.datetime)
 //            implementation("com.moriatsushi.insetsx:insetsx:0.1.0-alpha10")
         }
         desktopMain.dependencies {
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material)
+            implementation(compose.material3)
+            implementation(compose.components.resources)
+            implementation(compose.ui)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
         }

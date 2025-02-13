@@ -24,7 +24,7 @@ fun CenteringRow(content: @Composable() (RowScope.() -> Unit)) {
 /**
  * Allows a nullable [Modifier] to be chained to a non-nullable [Modifier].
  *
- * If [other] is null, return [this], else, chain [this] with [other].
+ * If [other] is `null`, return [this], else, chain [this] with [other].
  */
 @Composable
 fun Modifier.then(other: Modifier?): Modifier {

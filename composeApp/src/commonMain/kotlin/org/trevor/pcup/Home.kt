@@ -5,9 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -42,34 +40,38 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
 @Composable
-fun ColumnScope.ChartPart() {
+fun ChartPart(random: Random) {
     val modelProducer = remember { CartesianChartModelProducer() }
+    fun r(): Int {
+        Logger.d("random chart")
+        return random.nextInt(1, 5)
+    }
     LaunchedEffect(Unit) {
         modelProducer.runTransaction {
-            columnSeries { series(5, 2, 3, 1) }
+            columnSeries { series(r(), r(), r(), r(), r()) }
             Logger.d("created column series")
         }
     }
+
     CartesianChartHost(
         rememberCartesianChart(
             rememberColumnCartesianLayer(),
-            startAxis = VerticalAxis.rememberStart(),
-            bottomAxis = HorizontalAxis.rememberBottom(),
+            startAxis = VerticalAxis.rememberStart(guideline = null, tick = null, label = null),
+            bottomAxis = HorizontalAxis.rememberBottom(guideline = null, tick = null, label = null),
         ), modelProducer
     )
     Logger.i("chart host init")
 }
 
 @Composable
-fun ColumnScope.ListPart() {
+fun ListPart(random: Random) {
     Column(
         Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        val random = Random(Clock.System.now().toEpochMilliseconds())
         fun randomTime(): Duration {
-            Logger.d("random int generated")
+            Logger.d("random time generated")
             return random.nextInt(0, 120).minutes
         }
 
@@ -81,12 +83,17 @@ fun ColumnScope.ListPart() {
 
 @Composable
 @Preview
-fun ColumnScope.AppRowItem(name: String, icon: ImageBitmap, time: Duration) {
+fun AppRowItem(name: String, icon: ImageBitmap, time: Duration) {
     Box(
-        modifier = Modifier.clip(RoundedCornerShape(1.dp)).border(1.dp, Color.Black).height(20.dp)
+        modifier = Modifier.clip(RoundedCornerShape(1.dp)).border(1.dp, Color.Gray).height(20.dp)
             .fillMaxWidth(0.7F)
+            .fillMaxHeight(0.5F)
     ) {
-        Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            Modifier.fillMaxHeight(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
             Image(
                 icon, "$name icon",
                 modifier = Modifier.fillMaxHeight(0.8F).clip(RoundedCornerShape(1.dp))
@@ -101,10 +108,11 @@ fun ColumnScope.AppRowItem(name: String, icon: ImageBitmap, time: Duration) {
 
 @Composable
 fun Home() {
-    Column {
-        ChartPart()
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        val random = remember { Random(Clock.System.now().toEpochMilliseconds()) }
+
+        ChartPart(random)
         HorizontalDivider(thickness = 2.dp)
-        Spacer(Modifier.height(8.dp))
-        ListPart()
+        ListPart(random)
     }
 }

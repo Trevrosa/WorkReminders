@@ -8,12 +8,13 @@ import androidx.compose.runtime.Composable
  * Each platform will have to implement a `Platform` class.
  *
  * @property name Name of the implementing platform.
+ * @property battery Remaining battery charge from 0-100 or null if not implemented or unknown.
  */
 interface Platform {
     val name: String
-    val battery: Float?
+    val battery: Int?
 
-    fun batteryString(): String = this.battery?.toString() ?: "no battery level"
+    fun batteryString(): String = this.battery?.let { "$it%" } ?: "no battery level"
 }
 
 /**

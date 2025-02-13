@@ -104,6 +104,9 @@ fun NavBar(go1: FunUnit, go2: FunUnit, go3: FunUnit) {
     }
 }
 
+/**
+ * The home screen of the app.
+ */
 @Composable
 @Preview
 fun App() {
@@ -121,12 +124,9 @@ fun Test() {
     }
 }
 
-/**
- * The home screen of the app.
- */
 @Composable
 @Preview
-fun AppInner() {
+private fun AppInner() {
     // Do platform-specific work.
     val platform = getPlatform()
 
@@ -139,7 +139,8 @@ fun AppInner() {
     val go3 = { home = false; limits = false; settings = true; }
 
     MaterialTheme {
-        Text(platform.batteryString(), modifier = Modifier.zIndex(999F))
+        val startBattery = remember { platform.batteryString() }
+        Text(startBattery, modifier = Modifier.zIndex(999F))
 
         NavBar(go1, go2, go3)
 
