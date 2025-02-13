@@ -19,6 +19,10 @@ class IOSPlatform : Platform {
             }
         }
 
+    override fun getScreenTimes(): List<ScreenTime>? {
+        TODO("Not yet implemented")
+    }
+
     init {
         Logger.i("init")
     }
