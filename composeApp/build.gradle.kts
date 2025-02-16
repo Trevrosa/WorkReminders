@@ -37,6 +37,7 @@ kotlin {
             implementation(libs.vico.multiplatform)
         }
         iosMain.dependencies {
+            implementation(compose.preview)
             implementation(libs.vico.multiplatform)
         }
         commonMain.dependencies {

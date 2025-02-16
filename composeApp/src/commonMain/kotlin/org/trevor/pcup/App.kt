@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -110,14 +109,22 @@ fun NavBar(go1: FunUnit, go2: FunUnit, go3: FunUnit) {
 @Composable
 @Preview
 fun App() {
-    // TODO: change bottom (navigation) insets color, make navigation set at the bottom
-    Box(Modifier.windowInsetsPadding(WindowInsets.statusBars.add(WindowInsets.navigationBars))) {
+    // TODO: make navigation set at the bottom
+    Box(
+        Modifier
+            // BOTTOM INSET PADDING COLOR !!!!
+            .background(MaterialTheme.colors.primary)
+            .windowInsetsPadding(WindowInsets.navigationBars)
+            .background(Color.White)
+            .windowInsetsPadding(WindowInsets.statusBars)
+    ) {
         AppInner()
     }
 }
 
 @Composable
 @Preview
+@Suppress("unused")
 fun Test() {
     CenteringRow {
         Image(imageResource(Res.drawable.skribi), "xdd")
@@ -140,7 +147,11 @@ private fun AppInner() {
 
     MaterialTheme {
         val startBattery = remember { platform.batteryString() }
-        Text(startBattery, modifier = Modifier.zIndex(999F))
+        Text(
+            startBattery,
+            modifier = Modifier.zIndex(999F).padding(1.dp, 0.dp, 0.dp, 0.dp)
+                .background(Color.LightGray)
+        )
 
         NavBar(go1, go2, go3)
 

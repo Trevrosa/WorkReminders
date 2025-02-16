@@ -6,6 +6,8 @@ import androidx.compose.runtime.Composable
 @Composable
 fun DesktopApp() {
     val platform = getPlatform()
-    Text(platform.name)
-    Text(platform.batteryString())
+    CenteringColumn {
+        Text(platform.name)
+        Text(platform.batteryString())
+    }
 }

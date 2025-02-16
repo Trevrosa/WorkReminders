@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 import kotlin.time.Duration
 
 /**
- * Allows platform-specific functionality.
+ * A common interface that specifies platform-specific functionality.
  *
- * Each platform will have to implement a `Platform` class.
+ * Each platform will have to implement their own [Platform] class.
  *
  * @property name Name of the implementing platform.
  * @property battery Remaining battery charge from 0-100 or null if not implemented or unknown.
@@ -29,3 +29,13 @@ class ScreenTime(val appName: String, val usage: Duration)
  */
 @Composable
 expect fun getPlatform(): Platform
+
+/**
+ * Draw a graph using a [Collection] of [Number]s
+ *
+ * Does not worry about centering or layout.
+ *
+ * @param data The series to graph.
+ */
+@Composable
+expect fun Graph(data: Collection<Number>)

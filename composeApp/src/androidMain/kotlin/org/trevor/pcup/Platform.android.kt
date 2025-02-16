@@ -7,9 +7,21 @@ import android.content.Context.USAGE_STATS_SERVICE
 import android.os.BatteryManager
 import android.os.Build
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import co.touchlab.kermit.Logger
+import com.patrykandpatrick.vico.multiplatform.cartesian.CartesianChartHost
+import com.patrykandpatrick.vico.multiplatform.cartesian.axis.HorizontalAxis
+import com.patrykandpatrick.vico.multiplatform.cartesian.axis.VerticalAxis
+import com.patrykandpatrick.vico.multiplatform.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.multiplatform.cartesian.data.columnSeries
+import com.patrykandpatrick.vico.multiplatform.cartesian.layer.rememberColumnCartesianLayer
+import com.patrykandpatrick.vico.multiplatform.cartesian.rememberCartesianChart
 import kotlin.time.Duration.Companion.milliseconds
+
+@Composable
+actual fun getPlatform(): Platform = AndroidPlatform(LocalContext.current)
 
 class AndroidPlatform(private val ctx: Context) : Platform {
     override val name: String = "Android ${Build.VERSION.SDK_INT}"
@@ -43,4 +55,33 @@ class AndroidPlatform(private val ctx: Context) : Platform {
 }
 
 @Composable
-actual fun getPlatform(): Platform = AndroidPlatform(LocalContext.current)
+actual fun Graph(data: Collection<Number>) {
+    val modelProducer = remember { CartesianChartModelProducer() }
+
+    LaunchedEffect(Unit) {
+        modelProducer.runTransaction {
+            columnSeries { series(data) }
+            Logger.d("created column series")
+        }
+    }
+
+    CartesianChartHost(
+        rememberCartesianChart(
+            rememberColumnCartesianLayer(),
+            startAxis = VerticalAxis.rememberStart(
+                guideline = null,
+                tick = null,
+                label = null,
+                line = null
+            ),
+            bottomAxis = HorizontalAxis.rememberBottom(
+                guideline = null,
+                tick = null,
+                label = null,
+                line = null,
+            ),
+        ), modelProducer
+    )
+    Logger.i("chart host init")
+
+}

@@ -11,26 +11,18 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import co.touchlab.kermit.Logger
-import com.patrykandpatrick.vico.multiplatform.cartesian.CartesianChartHost
-import com.patrykandpatrick.vico.multiplatform.cartesian.axis.HorizontalAxis
-import com.patrykandpatrick.vico.multiplatform.cartesian.axis.VerticalAxis
-import com.patrykandpatrick.vico.multiplatform.cartesian.data.CartesianChartModelProducer
-import com.patrykandpatrick.vico.multiplatform.cartesian.data.columnSeries
-import com.patrykandpatrick.vico.multiplatform.cartesian.layer.rememberColumnCartesianLayer
-import com.patrykandpatrick.vico.multiplatform.cartesian.rememberCartesianChart
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -40,35 +32,11 @@ import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-enum class OptionInt {
-    Some(),
-}
-
 // TODO: make the chart platform-independent (create new enum class for vico and a desktop chart one)
 @Composable
 fun ChartPart(apps: Collection<App>) {
-    Row(Modifier.fillMaxWidth(0.9F), horizontalArrangement = Arrangement.Center) {
-        val modelProducer = remember { CartesianChartModelProducer() }
-
-        LaunchedEffect(Unit) {
-            modelProducer.runTransaction {
-                columnSeries { series(apps.map { a -> a.time.inWholeMinutes.toInt() }) }
-                Logger.d("created column series")
-            }
-        }
-
-        CartesianChartHost(
-            rememberCartesianChart(
-                rememberColumnCartesianLayer(),
-                startAxis = VerticalAxis.rememberStart(guideline = null, tick = null, label = null),
-                bottomAxis = HorizontalAxis.rememberBottom(
-                    guideline = null,
-                    tick = null,
-                    label = null
-                ),
-            ), modelProducer
-        )
-        Logger.i("chart host init")
+    Row(Modifier.fillMaxWidth().padding(2.dp, 0.dp)) {
+        Graph(apps.map { it.time.inWholeSeconds })
     }
 }
 
@@ -115,7 +83,7 @@ fun AppRowItem(app: App) {
 
 @Composable
 fun Home() {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column() {
         val random = remember { Random(Clock.System.now().toEpochMilliseconds()) }
         val icon = vectorResource(Res.drawable.home)
         val apps = remember {
@@ -130,6 +98,7 @@ fun Home() {
 
         ChartPart(apps)
         HorizontalDivider(thickness = 2.dp)
+        Spacer(Modifier.height(8.dp))
         ListPart(apps)
     }
 }
