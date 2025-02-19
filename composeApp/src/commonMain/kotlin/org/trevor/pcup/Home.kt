@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import co.touchlab.kermit.Logger
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -32,7 +33,6 @@ import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-// TODO: make the chart platform-independent (create new enum class for vico and a desktop chart one)
 @Composable
 fun ChartPart(apps: Collection<App>) {
     Row(Modifier.fillMaxWidth().padding(2.dp, 0.dp)) {
@@ -95,6 +95,8 @@ fun Home() {
                 )
             }
         }
+        val dbg = getPlatform().getScreenTimes();
+        Logger.d(dbg?.toString() ?: "dbg was null")
 
         ChartPart(apps)
         HorizontalDivider(thickness = 2.dp)

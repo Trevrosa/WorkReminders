@@ -23,5 +23,5 @@ class JVMPlatform : Platform {
 
 @Composable
 actual fun Graph(data: Collection<Number>) {
-    TODO("Not yet implemented")
+    Logger.e("Not yet implemented")
 }

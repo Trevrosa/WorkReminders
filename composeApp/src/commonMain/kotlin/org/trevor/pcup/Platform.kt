@@ -3,6 +3,7 @@ package org.trevor.pcup
 import androidx.compose.runtime.Composable
 import kotlin.time.Duration
 
+// TODO: rethink this (do we need an interface?)
 /**
  * A common interface that specifies platform-specific functionality.
  *
