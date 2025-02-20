@@ -1,6 +1,5 @@
 package org.trevor.pcup
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -60,7 +59,7 @@ fun ListPart(apps: Collection<App>) {
 fun AppRowItem(app: App) {
     Box(
         Modifier.rounded(5.dp).border(1.dp, Color.Gray)
-            .fillMaxWidth(0.75F)
+            .fillMaxWidth(0.9F)
             .height(45.dp)
     ) {
         Row(
@@ -68,7 +67,6 @@ fun AppRowItem(app: App) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
         ) {
-            // TODO: maybe 2.5
             Spacer(Modifier.width(2.dp))
             Image(
                 app.icon, "${app.name} icon",
@@ -96,8 +94,8 @@ fun Home() {
                 )
             }
         }
-        val dbg = getPlatform().getScreenTimes()
-        Logger.d(dbg?.toString() ?: "dbg was null")
+        val dbg = getPlatform().getScreenTimeData()
+        Logger.d(dbg?.let { "screen times: $it" } ?: "dbg was null", tag = "Home")
 
         ChartPart(apps)
         HorizontalDivider(thickness = 2.dp)

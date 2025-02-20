@@ -84,6 +84,11 @@ sealed class Either<out A, out B> {
     }
 }
 
+/**
+ * An `Image` that can be used by [Composable] functions.
+ *
+ * [Either.Left] is [ImageVector], [Either.Right] is [ImageBitmap]
+ */
 typealias ComposeImage = Either<ImageVector, ImageBitmap>
 
 /**

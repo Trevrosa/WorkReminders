@@ -1,7 +1,7 @@
-@file:Suppress("NAME_SHADOWING")
-
 package org.trevor.pcup
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -27,10 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import org.jetbrains.compose.resources.imageResource
@@ -46,8 +43,6 @@ import workreminders.composeapp.generated.resources.today
  * A function that returns a [Unit]
  */
 typealias FunUnit = () -> Unit
-
-val NavBarHeight: Dp = 60.dp
 
 @Composable
 @Preview
@@ -65,38 +60,33 @@ fun NavBar(go1: FunUnit, go2: FunUnit, go3: FunUnit) {
             .weight(1F)
 
     /**
-     * Modifier for each button's contents.
-     */
-    @Composable
-    fun NavBarItem() = Modifier
-        // rounded corner
-        .clip(RoundedCornerShape(10))
-        .background(Color.DarkGray)
-        .padding(4.dp, 2.dp)
-
-    /**
      * Create an [Image] with NavBarItem as its starting modifiers.
      */
     @Composable
     fun NavBarImage(vector: ImageVector, description: String?, modifier: Modifier? = null) {
-        val modifier = NavBarItem().then(modifier)
-        Image(vector, description, modifier)
+        if (modifier == null) {
+            Image(vector, description)
+        } else {
+            Image(vector, description, modifier)
+        }
     }
 
     Box(Modifier.fillMaxSize()) {
         Row(
-            Modifier.fillMaxWidth().height(NavBarHeight).align(Alignment.BottomStart)
-                .background(MaterialTheme.colors.secondary),
+            Modifier
+                // icon height is 24 dp
+                .fillMaxWidth().height((24 + 12).dp)
+                .align(Alignment.BottomStart),
             horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Bottom,
         ) {
-            Box(NavBarButton(go1), contentAlignment = Alignment.Center) {
+            Box(NavBarButton(go1), contentAlignment = Alignment.BottomCenter) {
                 NavBarImage(vectorResource(Res.drawable.home), "home icon")
             }
-            Box(NavBarButton(go2), contentAlignment = Alignment.Center) {
+            Box(NavBarButton(go2), contentAlignment = Alignment.BottomCenter) {
                 NavBarImage(vectorResource(Res.drawable.today), "calendar icon")
             }
-            Box(NavBarButton(go3), contentAlignment = Alignment.Center) {
+            Box(NavBarButton(go3), contentAlignment = Alignment.BottomCenter) {
                 NavBarImage(vectorResource(Res.drawable.settings), "settings icon")
             }
         }
@@ -108,8 +98,12 @@ fun NavBar(go1: FunUnit, go2: FunUnit, go3: FunUnit) {
  */
 @Composable
 @Preview
+// TODO: support dark mode
+// TODO: create my own theme
 fun App() {
-    // TODO: make navigation set at the bottom
+    // do the init stuff (hopefully once)
+    init()
+
     Box(
         Modifier
             // BOTTOM INSET PADDING COLOR !!!!
@@ -141,9 +135,12 @@ private fun AppInner() {
     var limits by remember { mutableStateOf(false) }
     var settings by remember { mutableStateOf(false) }
 
-    val go1 = { home = true; limits = false; settings = false; }
+    // -1 for slide from left, 1 for slide from right
+    var limitsSlideSide: Int by remember { mutableStateOf(-1) }
+
+    val go1 = { home = true; limits = false; settings = false; limitsSlideSide = -1 }
     val go2 = { home = false; limits = true; settings = false; }
-    val go3 = { home = false; limits = false; settings = true; }
+    val go3 = { home = false; limits = false; settings = true; limitsSlideSide = 1 }
 
     MaterialTheme {
         val startBattery = remember { platform.batteryString() }
@@ -155,16 +152,25 @@ private fun AppInner() {
 
         NavBar(go1, go2, go3)
 
-        if (home) {
+        AnimatedVisibility(
+            visible = home,
+            enter = slideInHorizontally(initialOffsetX = { it / 2 }),
+        ) {
             Home()
         }
 
-        if (limits) {
+        AnimatedVisibility(
+            visible = limits,
+            enter = slideInHorizontally(initialOffsetX = { it * limitsSlideSide / 2 }),
+        ) {
             Limits()
         }
 
-        if (settings) {
-            Settings()
+        AnimatedVisibility(
+            visible = settings,
+            enter = slideInHorizontally(initialOffsetX = { -it / 2 }),
+        ) {
+            Settings(platform)
         }
     }
 }
