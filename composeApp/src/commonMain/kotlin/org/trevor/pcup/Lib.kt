@@ -11,7 +11,80 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.DefaultAlpha
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
+
+/**
+ * Allow using [ComposeImage] to create an [Image]
+ */
+@Composable
+fun Image(
+    image: ComposeImage,
+    contentDescription: String?,
+    modifier: Modifier = Modifier,
+    alignment: Alignment = Alignment.Center,
+    contentScale: ContentScale = ContentScale.Fit,
+    alpha: Float = DefaultAlpha,
+    colorFilter: ColorFilter? = null
+) {
+    // if image.left() is not null, image is ImageVector. if image.left() is null, image is ImageBitmap
+    image.left()?.let { imageVector ->
+        androidx.compose.foundation.Image(
+            imageVector,
+            contentDescription = contentDescription,
+            modifier = modifier,
+            alignment = alignment,
+            contentScale = contentScale,
+            alpha = alpha,
+            colorFilter = colorFilter
+        )
+    } ?: run {
+        androidx.compose.foundation.Image(
+            // we checked left was null, so right must not be null.
+            image.right()!!,
+            contentDescription = contentDescription,
+            modifier = modifier,
+            alignment = alignment,
+            contentScale = contentScale,
+            alpha = alpha,
+            colorFilter = colorFilter
+        )
+    }
+}
+
+/**
+ * Representation of either [A] or [B].
+ */
+sealed class Either<out A, out B> {
+    data class Left<A>(val value: A) : Either<A, Nothing>()
+    data class Right<B>(val value: B) : Either<Nothing, B>()
+
+    /**
+     * Return [A] if `this` is an instance of [Left], or `null` if `this` is an instance of [Right].
+     */
+    fun left(): A? {
+        return when (this) {
+            is Left -> value
+            is Right -> null
+        }
+    }
+
+    /**
+     * Return [B] if `this` is an instance of [Right], or `null` if `this` is an instance of [Left].
+     */
+    fun right(): B? {
+        return when (this) {
+            is Left -> null
+            is Right -> value
+        }
+    }
+}
+
+typealias ComposeImage = Either<ImageVector, ImageBitmap>
 
 /**
  * Row with [Alignment.Center] alignment and [Arrangement.Center] arrangement.

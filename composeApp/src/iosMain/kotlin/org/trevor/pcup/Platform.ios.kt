@@ -3,6 +3,7 @@ package org.trevor.pcup
 import androidx.compose.runtime.Composable
 import co.touchlab.kermit.Logger
 import platform.UIKit.UIDevice
+import platform.UIKit.UIDeviceOrientation
 
 // @Composable unused here, but required because of the `expect`ed function
 @Composable

@@ -21,12 +21,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import co.touchlab.kermit.Logger
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.trevor.pcup.Either.Left
 import workreminders.composeapp.generated.resources.Res
 import workreminders.composeapp.generated.resources.home
 import kotlin.random.Random
@@ -40,7 +40,7 @@ fun ChartPart(apps: Collection<App>) {
     }
 }
 
-class App(val name: String, val time: Duration, val icon: ImageVector)
+class App(val name: String, val time: Duration, val icon: ComposeImage)
 
 @Composable
 fun ListPart(apps: Collection<App>) {
@@ -59,15 +59,16 @@ fun ListPart(apps: Collection<App>) {
 @Preview
 fun AppRowItem(app: App) {
     Box(
-        Modifier.rounded(1.dp).border(1.dp, Color.Gray)
-            .fillMaxWidth(0.8F)
-            .height(35.dp)
+        Modifier.rounded(5.dp).border(1.dp, Color.Gray)
+            .fillMaxWidth(0.75F)
+            .height(45.dp)
     ) {
         Row(
             Modifier.fillMaxHeight(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
         ) {
+            // TODO: maybe 2.5
             Spacer(Modifier.width(2.dp))
             Image(
                 app.icon, "${app.name} icon",
@@ -83,19 +84,19 @@ fun AppRowItem(app: App) {
 
 @Composable
 fun Home() {
-    Column() {
+    Column {
         val random = remember { Random(Clock.System.now().toEpochMilliseconds()) }
         val icon = vectorResource(Res.drawable.home)
         val apps = remember {
-            List<App>(5) {
+            List(5) {
                 App(
                     "app${it + 1}",
                     random.nextInt(1, 120).minutes,
-                    icon
+                    Left(icon)
                 )
             }
         }
-        val dbg = getPlatform().getScreenTimes();
+        val dbg = getPlatform().getScreenTimes()
         Logger.d(dbg?.toString() ?: "dbg was null")
 
         ChartPart(apps)
