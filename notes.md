@@ -1,4 +1,5 @@
-- `Logger` tag should be determined by the following:
+## `Logger` tag should be determined by the following:
+    
     - if `Logger` is called from a top-level function, the tag is `{FunctionName}`.
     - if `Logger` is called from a getter or setter of any class, the tag is
       `{ClassName}::{PropertyName}`.
