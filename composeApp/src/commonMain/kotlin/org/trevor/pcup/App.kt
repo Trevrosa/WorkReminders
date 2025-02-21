@@ -125,6 +125,13 @@ fun Test() {
     }
 }
 
+// -1 for slide from left, 1 for slide from right
+@Suppress("ConstPropertyName")
+private object SlideSide {
+    const val FromLeft = -1
+    const val FromRight = 1
+}
+
 @Composable
 @Preview
 private fun AppInner() {
@@ -135,12 +142,18 @@ private fun AppInner() {
     var limits by remember { mutableStateOf(false) }
     var settings by remember { mutableStateOf(false) }
 
-    // -1 for slide from left, 1 for slide from right
-    var limitsSlideSide: Int by remember { mutableStateOf(-1) }
+    var limitsSlideSide by remember { mutableStateOf(-1) }
 
-    val go1 = { home = true; limits = false; settings = false; limitsSlideSide = -1 }
+    // TODO: change formatting
+    val go1 = {
+        home = true; limits = false; settings = false
+        limitsSlideSide = SlideSide.FromLeft
+    }
     val go2 = { home = false; limits = true; settings = false; }
-    val go3 = { home = false; limits = false; settings = true; limitsSlideSide = 1 }
+    val go3 = {
+        home = false; limits = false; settings = true
+        limitsSlideSide = SlideSide.FromRight
+    }
 
     MaterialTheme {
         val startBattery = remember { platform.batteryString() }

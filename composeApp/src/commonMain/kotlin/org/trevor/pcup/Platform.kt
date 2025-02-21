@@ -26,10 +26,11 @@ interface Platform {
     /**
      * Send a notification.
      *
+     * @param title The notification title.
      * @param message The notification message.
      */
     @Composable
-    fun sendNotification(message: String)
+    fun sendNotification(title: String, message: String)
 
     /**
      * Format the battery level as a [String].

@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 /**
  * Allow using [ComposeImage] to create an [Image]
@@ -31,7 +33,8 @@ fun Image(
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null
 ) {
-    // if image.left() is not null, image is ImageVector. if image.left() is null, image is ImageBitmap
+    // if image.left() is not null, image is ImageVector.
+    // if image.left() is null, image is ImageBitmap
     image.left()?.let { imageVector ->
         androidx.compose.foundation.Image(
             imageVector,
@@ -59,6 +62,7 @@ fun Image(
 /**
  * Representation of either [A] or [B].
  */
+@OptIn(ExperimentalContracts::class)
 sealed class Either<out A, out B> {
     data class Left<A>(val value: A) : Either<A, Nothing>()
     data class Right<B>(val value: B) : Either<Nothing, B>()
@@ -67,6 +71,10 @@ sealed class Either<out A, out B> {
      * Return [A] if `this` is an instance of [Left], or `null` if `this` is an instance of [Right].
      */
     fun left(): A? {
+        contract {
+            returns(null) implies (this@Either is Right<B>)
+        }
+
         return when (this) {
             is Left -> value
             is Right -> null
@@ -77,6 +85,10 @@ sealed class Either<out A, out B> {
      * Return [B] if `this` is an instance of [Right], or `null` if `this` is an instance of [Left].
      */
     fun right(): B? {
+        contract {
+            returns(null) implies (this@Either is Left<A>)
+        }
+
         return when (this) {
             is Left -> null
             is Right -> value
@@ -95,7 +107,7 @@ typealias ComposeImage = Either<ImageVector, ImageBitmap>
  * Row with [Alignment.Center] alignment and [Arrangement.Center] arrangement.
  */
 @Composable
-fun CenteringRow(content: @Composable() (RowScope.() -> Unit)) {
+fun CenteringRow(content: @Composable (RowScope.() -> Unit)) {
     Row(
         modifier = Modifier.fillMaxSize(),
         verticalAlignment = Alignment.CenterVertically,
@@ -110,7 +122,7 @@ fun CenteringRow(content: @Composable() (RowScope.() -> Unit)) {
 @Composable
 fun CenteringColumn(
     arrangement: Arrangement.Vertical = Arrangement.Center,
-    content: @Composable() (ColumnScope.() -> Unit)
+    content: @Composable (ColumnScope.() -> Unit)
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),

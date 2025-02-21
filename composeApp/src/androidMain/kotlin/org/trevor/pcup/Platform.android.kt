@@ -89,7 +89,8 @@ class AndroidPlatform(private val ctx: Context) : Platform {
 
 
     @Composable
-    override fun sendNotification(message: String) {
+    // TODO: allow caller to specify notification icon
+    override fun sendNotification(title: String, message: String) {
         Logger.setTag("sendNotification")
 
         val notificationManager = ctx.getSystemService(NOTIFICATION_SERVICE) as? NotificationManager
@@ -99,8 +100,8 @@ class AndroidPlatform(private val ctx: Context) : Platform {
         }
 
         val notification = Notification.Builder(ctx, CHANNEL_ID)
-            .setColor(0xf02ff)
-            .setContentTitle("wasup")
+            .setColor(0x38c761)
+            .setContentTitle(title)
             .setContentText(message)
             .setSmallIcon(Icon.createWithBitmap(imageResource(Res.drawable.skribi).asAndroidBitmap()))
             .build()
