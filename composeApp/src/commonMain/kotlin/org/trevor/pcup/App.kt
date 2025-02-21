@@ -128,6 +128,7 @@ fun Test() {
 /**
  * To be multiplied by a device's full width.
  */
+@Suppress("unused")
 private enum class SlideSide {
     FromLeft,
     FromRight;
@@ -165,7 +166,7 @@ private fun AppInner() {
     var limits by remember { mutableStateOf(false) }
     var settings by remember { mutableStateOf(false) }
 
-    var limitsSlideSide by remember { mutableStateOf(-1) }
+    var limitsSlideSide by remember { mutableStateOf(SlideSide.FromRight) }
 
     // TODO: change formatting
     val go1 = {
@@ -188,25 +189,25 @@ private fun AppInner() {
 
         NavBar(go1, go2, go3)
 
-        fun getOffset(fw: Int, slideSide: SlideSide) = fw * slideSide./ 2
+        fun getOffset(fw: Int, slideSide: SlideSide) = fw * slideSide.toInt() / 2
 
         AnimatedVisibility(
             visible = home,
-            enter = slideInHorizontally(initialOffsetX = { fw -> fw * SlideSide.FromLeft / 2 }),
+            enter = slideInHorizontally(initialOffsetX = { getOffset(it, SlideSide.FromRight) }),
         ) {
             Home()
         }
 
         AnimatedVisibility(
             visible = limits,
-            enter = slideInHorizontally(initialOffsetX = { fw -> fw * limitsSlideSide / 2 }),
+            enter = slideInHorizontally(initialOffsetX = { getOffset(it, limitsSlideSide) }),
         ) {
             Limits()
         }
 
         AnimatedVisibility(
             visible = settings,
-            enter = slideInHorizontally(initialOffsetX = { fw -> fw * SlideSide.FromRight / 2 }),
+            enter = slideInHorizontally(initialOffsetX = { getOffset(it, SlideSide.FromLeft) }),
         ) {
             Settings(platform)
         }

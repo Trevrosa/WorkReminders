@@ -19,7 +19,7 @@ interface Platform {
     val battery: Int?
 
     /**
-     * Get the platform's screen time information
+     * @return The platform's screen time information
      */
     fun getScreenTimeData(): List<ScreenTime>?
 
@@ -47,7 +47,9 @@ interface Platform {
 class ScreenTime(val appName: String, val usage: Duration)
 
 /**
- * Each platform will define the `actual` function independently.
+ * Each platform defines the `actual` function independently.
+ *
+ * @return The [Platform] implementation provided.
  */
 @Composable
 expect fun getPlatform(): Platform
