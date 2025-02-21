@@ -125,11 +125,34 @@ fun Test() {
     }
 }
 
-// -1 for slide from left, 1 for slide from right
-@Suppress("ConstPropertyName")
-private object SlideSide {
-    const val FromLeft = -1
-    const val FromRight = 1
+/**
+ * To be multiplied by a device's full width.
+ */
+private enum class SlideSide {
+    FromLeft,
+    FromRight;
+
+    /**
+     * [FromLeft] is -1, [FromRight] is 1.
+     *
+     * @param i The [Int] to be converted.
+     * @return The converted [SlideSide], or `null` if [i] is not -1 or 1.
+     */
+    fun fromInt(i: Int): SlideSide? =
+        when (i) {
+            -1 -> FromLeft
+            1 -> FromRight
+            else -> null
+        }
+
+    /**
+     * [FromLeft] is -1, [FromRight] is 1.
+     */
+    fun toInt(): Int =
+        when (this) {
+            FromLeft -> -1
+            FromRight -> 1
+        }
 }
 
 @Composable
@@ -147,12 +170,12 @@ private fun AppInner() {
     // TODO: change formatting
     val go1 = {
         home = true; limits = false; settings = false
-        limitsSlideSide = SlideSide.FromLeft
+        limitsSlideSide = SlideSide.FromRight
     }
     val go2 = { home = false; limits = true; settings = false; }
     val go3 = {
         home = false; limits = false; settings = true
-        limitsSlideSide = SlideSide.FromRight
+        limitsSlideSide = SlideSide.FromLeft
     }
 
     MaterialTheme {
@@ -165,23 +188,25 @@ private fun AppInner() {
 
         NavBar(go1, go2, go3)
 
+        fun getOffset(fw: Int, slideSide: SlideSide) = fw * slideSide./ 2
+
         AnimatedVisibility(
             visible = home,
-            enter = slideInHorizontally(initialOffsetX = { it / 2 }),
+            enter = slideInHorizontally(initialOffsetX = { fw -> fw * SlideSide.FromLeft / 2 }),
         ) {
             Home()
         }
 
         AnimatedVisibility(
             visible = limits,
-            enter = slideInHorizontally(initialOffsetX = { it * limitsSlideSide / 2 }),
+            enter = slideInHorizontally(initialOffsetX = { fw -> fw * limitsSlideSide / 2 }),
         ) {
             Limits()
         }
 
         AnimatedVisibility(
             visible = settings,
-            enter = slideInHorizontally(initialOffsetX = { -it / 2 }),
+            enter = slideInHorizontally(initialOffsetX = { fw -> fw * SlideSide.FromRight / 2 }),
         ) {
             Settings(platform)
         }

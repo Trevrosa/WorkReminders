@@ -32,7 +32,7 @@ fun Settings(platform: Platform) {
         Button(onClick = { clickedOld = clicked; clicked = !clicked }) { Text("xdd") }
 
         if (clicked != clickedOld) {
-            platform.sendNotification("xdd")
+            platform.sendNotification("xdd", input)
         }
     }
 }
