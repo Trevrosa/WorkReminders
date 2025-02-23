@@ -1,10 +1,13 @@
 package org.trevor.pcup
 
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.NonRestartableComposable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import co.touchlab.kermit.Logger
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
 import platform.Foundation.NSError
 import platform.UIKit.UIDevice
@@ -57,32 +60,39 @@ class IOSPlatform : Platform {
         }
     }
 
-    @Composable
-    override fun sendNotification(title: String, message: String) {
-        Logger.setTag("sendNotification")
+    /**
+     * If `null`, then notification permissions have not been requested.
+     * If not `null`, the value is whether we have notification permissions.
+     */
+    private var notificationPermission: Boolean? = null
 
-        val center = UNUserNotificationCenter.currentNotificationCenter()
-
-        var notificationPermission: Boolean? = null
+    /**
+     * Request permission to send notifications.
+     *
+     * @param center The notification center.
+     */
+    private fun requestNotificationPermission(center: UNUserNotificationCenter) {
+        if (notificationPermission != null) {
+            Logger.d("notification already requested: $notificationPermission")
+            return
+        }
 
         val authHandler: (Boolean, NSError?) -> Unit = { granted, err ->
             if (err != null) {
                 Logger.e("got error $err")
             }
             notificationPermission = granted
-            Logger.i("got notification permission? $notificationPermission")
+            Logger.i("got notification permission: $granted")
         }
         center.requestAuthorizationWithOptions(options = UNAuthorizationOptionAlert, authHandler)
+    }
 
-        while (notificationPermission == null) {
-            runBlocking { delay(1000) }
-            Logger.d("waited 1s for permission")
-        }
+    @Composable
+    override fun sendNotification(title: String, message: String) {
+        Logger.setTag("sendNotification")
 
-        if (!notificationPermission!!) {
-            Logger.e("no send notification permission.")
-            return
-        }
+        val center = UNUserNotificationCenter.currentNotificationCenter()
+        this.requestNotificationPermission(center)
 
         val content = UNMutableNotificationContent()
         content.setTitle(title)
@@ -102,5 +112,8 @@ class IOSPlatform : Platform {
 
 @Composable
 actual fun Graph(data: Collection<Number>) {
+    Canvas(Modifier.fillMaxSize()) {
+        drawLine(Color.Blue, Offset(10F, 10F), Offset(10F, 12F), 10f)
+    }
     Logger.e("Not yet implemented", tag = "Graph")
 }
