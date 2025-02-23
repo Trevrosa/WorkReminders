@@ -23,6 +23,7 @@ import kotlin.contracts.contract
 /**
  * Allow using [ComposeImage] to create an [Image]
  */
+@Suppress("NAME_SHADOWING")
 @Composable
 fun Image(
     image: ComposeImage,
@@ -33,9 +34,9 @@ fun Image(
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null
 ) {
-    // if image.left() is not null, image is ImageVector.
-    // if image.left() is null, image is ImageBitmap
-    image.left()?.let { imageVector ->
+    // ComposeImage::unwrap() must be ImageVector OR ImageBitmap
+    val image = image.unwrap()
+    (image as? ImageVector)?.let { imageVector ->
         androidx.compose.foundation.Image(
             imageVector,
             contentDescription = contentDescription,
@@ -47,8 +48,7 @@ fun Image(
         )
     } ?: run {
         androidx.compose.foundation.Image(
-            // we checked left was null, so right must not be null.
-            image.right()!!,
+            image as ImageBitmap,
             contentDescription = contentDescription,
             modifier = modifier,
             alignment = alignment,
@@ -94,6 +94,15 @@ sealed class Either<out A, out B> {
             is Right -> value
         }
     }
+
+    /**
+     * Get this [Either]'s [left]. If [left] is null, return [right].
+     *
+     * Will never be null.
+     *
+     * @return Value of type [A] or [B].
+     */
+    fun unwrap(): Any = this.left() ?: this.right()!!
 }
 
 /**

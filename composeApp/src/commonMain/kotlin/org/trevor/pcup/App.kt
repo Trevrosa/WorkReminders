@@ -42,16 +42,16 @@ import workreminders.composeapp.generated.resources.today
 /**
  * A function that returns a [Unit]
  */
-typealias FunUnit = () -> Unit
+typealias Fun = () -> Unit
 
 @Composable
 @Preview
-fun NavBar(go1: FunUnit, go2: FunUnit, go3: FunUnit) {
+fun NavBar(go1: Fun, go2: Fun, go3: Fun) {
     /**
      * Modifier for each button.
      */
     @Composable
-    fun RowScope.NavBarButton(onClick: FunUnit) =
+    fun RowScope.NavBarButton(onClick: Fun) =
         Modifier
             .clickable(onClick = onClick)
             .background(MaterialTheme.colors.primary)
@@ -168,18 +168,18 @@ private fun AppInner() {
 
     var limitsSlideSide by remember { mutableStateOf(SlideSide.FromRight) }
 
-    // TODO: change formatting
     val go1 = {
-        home = true; limits = false; settings = false
-        limitsSlideSide = SlideSide.FromRight
+        home = true; limits = false; settings = false; limitsSlideSide = SlideSide.FromRight
     }
-    val go2 = { home = false; limits = true; settings = false; }
+    val go2 = {
+        home = false; limits = true; settings = false
+    }
     val go3 = {
-        home = false; limits = false; settings = true
-        limitsSlideSide = SlideSide.FromLeft
+        home = false; limits = false; settings = true; limitsSlideSide = SlideSide.FromLeft
     }
 
     MaterialTheme {
+        // TODO: remove later
         val startBattery = remember { platform.batteryString() }
         Text(
             startBattery,
@@ -189,25 +189,34 @@ private fun AppInner() {
 
         NavBar(go1, go2, go3)
 
-        fun getOffset(fw: Int, slideSide: SlideSide) = fw * slideSide.toInt() / 2
+        /**
+         * Assumes [this] is the device's screen's full width.
+         *
+         * @return Half of [this] multiplied by [slideSide].
+         * @param slideSide The side to slide from.
+         */
+        fun Int.getOffset(slideSide: SlideSide) = this * slideSide.toInt() / 2
 
         AnimatedVisibility(
+            modifier = Modifier.fillMaxSize(),
             visible = home,
-            enter = slideInHorizontally(initialOffsetX = { getOffset(it, SlideSide.FromRight) }),
+            enter = slideInHorizontally(initialOffsetX = { fw -> fw.getOffset(SlideSide.FromLeft) }),
         ) {
             Home()
         }
 
         AnimatedVisibility(
+            modifier = Modifier.fillMaxSize(),
             visible = limits,
-            enter = slideInHorizontally(initialOffsetX = { getOffset(it, limitsSlideSide) }),
+            enter = slideInHorizontally(initialOffsetX = { fw -> fw.getOffset(limitsSlideSide) }),
         ) {
             Limits()
         }
 
         AnimatedVisibility(
+            modifier = Modifier.fillMaxSize(),
             visible = settings,
-            enter = slideInHorizontally(initialOffsetX = { getOffset(it, SlideSide.FromLeft) }),
+            enter = slideInHorizontally(initialOffsetX = { fw -> fw.getOffset(SlideSide.FromRight) }),
         ) {
             Settings(platform)
         }

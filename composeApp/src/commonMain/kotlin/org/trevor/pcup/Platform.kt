@@ -7,9 +7,9 @@ import kotlin.time.Duration
 /**
  * A common interface that specifies platform-specific functionality.
  *
- * Each platform has to implement their own [Platform] class.
+ * Each platform implements their own [Platform] class.
  *
- * DO NOT use an `init` block for code intended to run once. Implement the [init] function instead.
+ * DO NOT use an `init` block to run init code on each platform. Implement the [init] function instead.
  *
  * @property name Name of the implementing platform.
  * @property battery Remaining battery charge from 0-100 or `null` if not implemented or unknown.
@@ -33,7 +33,7 @@ interface Platform {
     fun sendNotification(title: String, message: String)
 
     /**
-     * Format the battery level as a [String].
+     * @return The formatted battery level as a [String].
      */
     fun batteryString(): String = this.battery?.let { "$it%" } ?: "no battery level"
 }

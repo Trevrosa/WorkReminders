@@ -23,11 +23,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import co.touchlab.kermit.Logger
 import kotlinx.datetime.Clock
-import org.jetbrains.compose.resources.vectorResource
+import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.trevor.pcup.Either.Left
 import workreminders.composeapp.generated.resources.Res
-import workreminders.composeapp.generated.resources.home
+import workreminders.composeapp.generated.resources.skribi
 import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -84,13 +83,13 @@ fun AppRowItem(app: App) {
 fun Home() {
     Column {
         val random = remember { Random(Clock.System.now().toEpochMilliseconds()) }
-        val icon = vectorResource(Res.drawable.home)
+        val skribi = imageResource(Res.drawable.skribi)
         val apps = remember {
             List(5) {
                 App(
                     "app${it + 1}",
                     random.nextInt(1, 120).minutes,
-                    Left(icon)
+                    Either.Right(skribi)
                 )
             }
         }
@@ -100,7 +99,7 @@ fun Home() {
         val dbg = getPlatform().getScreenTimeData()
         if (dbg != null) {
             Logger.d("screen times: $dbg")
-            Logger.d("first usage: ${dbg.firstOrNull()?.usage}")
+            Logger.d("first: ${dbg.firstOrNull()?.appName}: ${dbg.firstOrNull()?.usage}")
         }
 
         ChartPart(apps)

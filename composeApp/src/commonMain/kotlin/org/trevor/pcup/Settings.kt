@@ -22,13 +22,18 @@ fun Settings(platform: Platform) {
         Text("Settings")
 
         var input by rememberSaveable { mutableStateOf("") }
-        val setInput = { s: String -> input = s }
+        val setInput = { s: String -> if (s.length <= 10) input = s }
 
         var clickedOld by remember { mutableStateOf(false) }
         var clicked by remember { mutableStateOf(false) }
 
         Text(input, Modifier.background(Color.LightGray).border(1.dp, color = Color.Blue))
-        TextField(input, setInput, placeholder = { Text("input") }, singleLine = true)
+        TextField(
+            input,
+            onValueChange = setInput,
+            placeholder = { Text("input") },
+            singleLine = true
+        )
         Button(onClick = { clickedOld = clicked; clicked = !clicked }) { Text("xdd") }
 
         if (clicked != clickedOld) {
