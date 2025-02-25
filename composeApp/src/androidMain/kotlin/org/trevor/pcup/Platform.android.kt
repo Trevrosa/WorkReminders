@@ -75,7 +75,10 @@ class AndroidPlatform(private val ctx: Context) : Platform {
             return battery.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
         }
 
+    // TODO: test this works
     override fun getScreenTimeData(): List<ScreenTime>? {
+        Logger.setTag("getScreenTimeData")
+
         val usageStats = ctx.getSystemService(USAGE_STATS_SERVICE) as? UsageStatsManager
         if (usageStats == null) {
             Logger.e("could not get USAGE_STATS_SERVICE")
@@ -83,7 +86,7 @@ class AndroidPlatform(private val ctx: Context) : Platform {
         }
 
         val stats = usageStats.queryAndAggregateUsageStats(0, System.currentTimeMillis())
-        Logger.d("got ${stats.size} usage stats", tag = "getScreenTimeData")
+        Logger.d("got ${stats.size} usage stats")
         return stats.map { (k, v) -> ScreenTime(k, v.totalTimeInForeground.milliseconds) }
     }
 
@@ -141,5 +144,5 @@ actual fun Graph(data: Collection<Number>) {
             ),
         ), modelProducer
     )
-    Logger.i("chart host created", tag = "Graph")
+    Logger.d("chart host created", tag = "Graph")
 }

@@ -96,12 +96,6 @@ fun Home() {
 
         Logger.setTag("Home")
 
-        val dbg = getPlatform().getScreenTimeData()
-        if (dbg != null) {
-            Logger.d("screen times: $dbg")
-            Logger.d("first: ${dbg.firstOrNull()?.appName}: ${dbg.firstOrNull()?.usage}")
-        }
-
         ChartPart(apps)
         HorizontalDivider(thickness = 2.dp)
         Spacer(Modifier.height(8.dp))

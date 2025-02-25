@@ -9,7 +9,7 @@ import kotlin.time.Duration
  *
  * Each platform implements their own [Platform] class.
  *
- * DO NOT use an `init` block to run init code on each platform. Implement the [init] function instead.
+ * DO NOT use an `init` block to run code on platform init. Implement the [init] function instead.
  *
  * @property name Name of the implementing platform.
  * @property battery Remaining battery charge from 0-100 or `null` if not implemented or unknown.
