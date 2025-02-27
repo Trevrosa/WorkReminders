@@ -77,6 +77,7 @@ class AndroidPlatform(private val ctx: Context) : Platform {
 
     // TODO: test this works
     override fun getScreenTimeData(): List<ScreenTime>? {
+        val origTag = Logger.tag
         Logger.setTag("getScreenTimeData")
 
         val usageStats = ctx.getSystemService(USAGE_STATS_SERVICE) as? UsageStatsManager
@@ -84,9 +85,11 @@ class AndroidPlatform(private val ctx: Context) : Platform {
             Logger.e("could not get USAGE_STATS_SERVICE")
             return null
         }
-
-        val stats = usageStats.queryAndAggregateUsageStats(0, System.currentTimeMillis())
+        val stats =
+            usageStats.queryAndAggregateUsageStats(0, Clock.System.now().toEpochMilliseconds())
         Logger.d("got ${stats.size} usage stats")
+
+        Logger.setTag(origTag)
         return stats.map { (k, v) -> ScreenTime(k, v.totalTimeInForeground.milliseconds) }
     }
 
@@ -94,6 +97,7 @@ class AndroidPlatform(private val ctx: Context) : Platform {
     @Composable
     // TODO: allow caller to specify notification icon
     override fun sendNotification(title: String, message: String) {
+        val origTag = Logger.tag
         Logger.setTag("sendNotification")
 
         val notificationManager = ctx.getSystemService(NOTIFICATION_SERVICE) as? NotificationManager
@@ -113,6 +117,7 @@ class AndroidPlatform(private val ctx: Context) : Platform {
         notificationManager.notify(id, notification)
 
         Logger.i("sent notification with id $id")
+        Logger.setTag(origTag)
     }
 }
 

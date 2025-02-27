@@ -89,6 +89,7 @@ class IOSPlatform : Platform {
 
     @Composable
     override fun sendNotification(title: String, message: String) {
+        val origTag = Logger.tag
         Logger.setTag("sendNotification")
 
         val center = UNUserNotificationCenter.currentNotificationCenter()
@@ -107,6 +108,7 @@ class IOSPlatform : Platform {
         // send it now!
         center.addNotificationRequest(request) { err -> errHandler("sendNotification", err) }
         Logger.i("sent notification with id $id")
+        Logger.setTag(origTag)
     }
 }
 

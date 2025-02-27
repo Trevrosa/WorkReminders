@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.serialization)
 //    id("co.touchlab.skie") version "0.10.1"
 }
 
@@ -56,6 +57,9 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.cio)
+            implementation(libs.kotlinx.serialization.json)
+            // FIXME: try lib below
+//            implementation("io.github.thechance101:chart:$latest_release")
 //            implementation("com.moriatsushi.insetsx:insetsx:0.1.0-alpha10")
         }
         desktopMain.dependencies {

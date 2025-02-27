@@ -33,6 +33,9 @@ import androidx.compose.ui.zIndex
 import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.trevor.pcup.screens.Home
+import org.trevor.pcup.screens.Limits
+import org.trevor.pcup.screens.Settings
 import workreminders.composeapp.generated.resources.Res
 import workreminders.composeapp.generated.resources.home
 import workreminders.composeapp.generated.resources.settings

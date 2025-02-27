@@ -1,11 +1,11 @@
 [versions]
-agp = "8.8.1"
+agp = "8.8.2"
 android-minSdk = "26"
 android-targetSdk = "35"
 android-compileSdk = "35"
-androidx-activityCompose = "1.10.0"
+androidx-activityCompose = "1.10.1"
 androidx-appcompat = "1.7.0"
-androidx-constraintlayout = "2.2.0"
+androidx-constraintlayout = "2.2.1"
 androidx-core-ktx = "1.15.0"
 androidx-espresso-core = "3.6.1"
 androidx-lifecycle = "2.8.4"
@@ -17,6 +17,7 @@ kermit = "2.0.4"
 kotlin = "2.1.0"
 kotlinx-coroutines = "1.10.1"
 kotlinxDatetime = "0.6.2"
+kotlinxSerializationJson = "1.8.0"
 ktor = "3.1.0"
 vico = "2.1.0-alpha.4"
 material3Android = "1.3.1"
@@ -41,6 +42,7 @@ kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-co
 
 # extra
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 vico-compose = { group = "com.patrykandpatrick.vico", name = "compose", version.ref = "vico" }
@@ -55,3 +57,5 @@ androidLibrary = { id = "com.android.library", version.ref = "agp" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+# json serialization
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
