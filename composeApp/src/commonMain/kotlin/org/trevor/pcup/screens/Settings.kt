@@ -21,8 +21,8 @@ import io.ktor.client.HttpClient
 import kotlinx.coroutines.launch
 import org.trevor.pcup.CenteringColumn
 import org.trevor.pcup.Platform
-import org.trevor.pcup.backend.auth.AuthRequest
-import org.trevor.pcup.backend.auth.authenticate
+import org.trevor.pcup.backend.AuthRequest
+import org.trevor.pcup.backend.authenticate
 
 @Composable
 fun Settings(platform: Platform) {
@@ -64,7 +64,8 @@ fun Settings(platform: Platform) {
 
         Button(onClick = {
             coroutineScope.launch {
-                authenticate(httpClient, AuthRequest("xdd", "123"))
+                Logger.d("got: ${authenticate(httpClient, AuthRequest("xdd", "123"))}")
+                Logger.d("got: ${authenticate(httpClient, AuthRequest("xdd", "12345678"))}")
             }
         }) { Text("http!") }
     }
