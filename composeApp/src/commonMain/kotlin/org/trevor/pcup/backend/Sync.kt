@@ -8,31 +8,33 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
 @Serializable
-data class AuthRequest(val username: String, val password: String)
+data class UserData(@SerialName("app_usage") val appUsage: List<AppInfo>)
 
 @Serializable
-data class UserSession(@SerialName("user_id") val userId: UInt, val id: String)
+data class AppInfo(val name: String, val usage: UInt, val limit: UInt)
 
+// TODO: test this
 /**
- * Either create a new account with name [AuthRequest.username], or sign in with password [AuthRequest.password].
+ * Synchronize local user state with the server.
  *
- * @return The session for the requested user.
- * @param client The HTTP client to make requests with.
- * @param request The requested username and password.
+ * @return The synchronized user data state, or null if any errors occurred.
+ *
+ * @param client The HTTP client to use to make the request.
+ * @param currentData The current user data, or null.
+ * @param sessionId The user's session.
  */
-suspend fun authenticate(client: HttpClient, request: AuthRequest): UserSession? {
+suspend fun syncUserData(client: HttpClient, currentData: UserData?, sessionId: String): UserData? {
     val origTag = Logger.tag
-    Logger.setTag("authenticate")
+    Logger.setTag("syncUserData")
 
     Logger.d("sending request")
     val response = try {
-        client.post("${BASE_URL}/auth") {
+        client.post("${BASE_URL}/sync/$sessionId") {
             contentType(ContentType.Application.Json)
-            setBody(Json.encodeToString(request))
+            setBody(encodeOption(currentData))
         }
     } catch (e: Exception) {
         Logger.e("got err: $e")
