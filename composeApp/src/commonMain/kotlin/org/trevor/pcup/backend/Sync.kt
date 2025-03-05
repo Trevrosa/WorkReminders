@@ -2,10 +2,6 @@ package org.trevor.pcup.backend
 
 import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
@@ -31,16 +27,7 @@ suspend fun syncUserData(client: HttpClient, currentData: UserData?, sessionId: 
     Logger.setTag("syncUserData")
 
     Logger.d("sending request")
-    val response = try {
-        client.post("${BASE_URL}/sync/$sessionId") {
-            contentType(ContentType.Application.Json)
-            setBody(encodeOption(currentData))
-        }
-    } catch (e: Exception) {
-        Logger.e("got err: $e")
-        null
-    }
-
+    val response = post(client, "${BASE_URL}/sync/$sessionId", encodeOption(currentData))
     val result: JsonObject? = handleResponse(response)
 
     Logger.setTag(origTag)
