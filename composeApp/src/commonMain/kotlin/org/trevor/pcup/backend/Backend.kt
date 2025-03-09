@@ -13,9 +13,9 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 
-// FIXME: change when needed
+// FIXME: change as needed
 // 10.0.2.2 is host localhost for android emulator
-internal const val BASE_URL = "http://10.0.2.2:8000"
+internal const val BASE_URL = "https://pcup.trevrosa.dev"
 
 suspend fun post(client: HttpClient, url: String, body: String): HttpResponse? {
     return try {

@@ -7,6 +7,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 
 @Serializable
+data class SyncSummary(val data: UserData, val failed: UInt)
+
+@Serializable
 data class UserData(@SerialName("app_usage") val appUsage: List<AppInfo>)
 
 @Serializable
@@ -16,13 +19,17 @@ data class AppInfo(val name: String, val usage: UInt, val limit: UInt)
 /**
  * Synchronize local user state with the server.
  *
- * @return The synchronized user data state, or null if any errors occurred.
+ * @return The synchronized user data state, attached with the number of sync failures, or null if any fatal errors occurred.
  *
  * @param client The HTTP client to use to make the request.
  * @param currentData The current user data, or null.
  * @param sessionId The user's session.
  */
-suspend fun syncUserData(client: HttpClient, currentData: UserData?, sessionId: String): UserData? {
+suspend fun syncUserData(
+    client: HttpClient,
+    currentData: UserData?,
+    sessionId: String
+): SyncSummary? {
     val origTag = Logger.tag
     Logger.setTag("syncUserData")
 
