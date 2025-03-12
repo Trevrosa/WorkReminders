@@ -93,6 +93,7 @@ class AndroidPlatform(private val ctx: Context) : Platform {
         return stats.map { (k, v) -> ScreenTime(k, v.totalTimeInForeground.milliseconds) }
     }
 
+    override fun dataStorePath(): String = ctx.filesDir.resolve(dataStoreName).absolutePath
 
     @Composable
     // TODO: allow caller to specify notification icon

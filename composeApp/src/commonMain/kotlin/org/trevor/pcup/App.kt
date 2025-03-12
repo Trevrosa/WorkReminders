@@ -20,9 +20,11 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,11 +32,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import okio.Path.Companion.toPath
 import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.trevor.pcup.screens.Home
 import org.trevor.pcup.screens.Limits
+import org.trevor.pcup.screens.Login
 import org.trevor.pcup.screens.Settings
 import workreminders.composeapp.generated.resources.Res
 import workreminders.composeapp.generated.resources.home
@@ -160,11 +169,7 @@ private enum class SlideSide {
 }
 
 @Composable
-@Preview
-private fun AppInner() {
-    // Do platform-specific work.
-    val platform = getPlatform()
-
+private fun LoggedIn(platform: Platform) {
     var home by remember { mutableStateOf(true) }
     var limits by remember { mutableStateOf(false) }
     var settings by remember { mutableStateOf(false) }
@@ -223,5 +228,44 @@ private fun AppInner() {
         ) {
             Settings(platform)
         }
+    }
+}
+
+// FIXME: this needs to be session id key
+val LOGGED_IN_KEY = booleanPreferencesKey("logged_in")
+
+@Composable
+@Preview
+private fun AppInner() {
+    // Do platform-specific work.
+    val platform = getPlatform()
+
+    // FIXME: this needs to check if the session is actually valid.
+    var loggedIn: Boolean by remember { mutableStateOf(false) }
+
+    val coroutineScope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        val dataStore =
+            PreferenceDataStoreFactory.createWithPath(produceFile = {
+                platform.dataStorePath().toPath()
+            })
+
+
+        val loggedInFlow =
+            dataStore.data.map { prefs ->
+                prefs[LOGGED_IN_KEY] ?: false
+            }
+
+        coroutineScope.launch {
+            loggedIn = loggedInFlow.firstOrNull() ?: false
+        }
+    }
+
+    if (loggedIn) {
+        // TODO: pass the session here too?
+        LoggedIn(platform)
+    } else {
+        // TODO: show different messages if session timed out / not logged in ever
+        Login()
     }
 }

@@ -8,8 +8,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import co.touchlab.kermit.Logger
+import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.datetime.Clock
+import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSError
+import platform.Foundation.NSFileManager
+import platform.Foundation.NSUserDomainMask
 import platform.UIKit.UIDevice
 import platform.UserNotifications.UNAuthorizationOptionAlert
 import platform.UserNotifications.UNMutableNotificationContent
@@ -85,6 +89,18 @@ class IOSPlatform : Platform {
             Logger.i("got notification permission: $granted")
         }
         center.requestAuthorizationWithOptions(options = UNAuthorizationOptionAlert, authHandler)
+    }
+
+    @OptIn(ExperimentalForeignApi::class)
+    override fun dataStorePath(): String {
+        val documentDirectory = NSFileManager.defaultManager.URLForDirectory(
+            directory = NSDocumentDirectory,
+            inDomain = NSUserDomainMask,
+            appropriateForURL = null,
+            create = false,
+            error = null,
+        )
+        return requireNotNull(documentDirectory).path + "/$dataStoreName"
     }
 
     @Composable

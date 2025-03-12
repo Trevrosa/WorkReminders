@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.NonRestartableComposable
 import kotlin.time.Duration
 
+const val dataStoreName = "skbd.preferences_pb"
+
 /**
  * A common interface that specifies platform-specific functionality.
  *
@@ -31,6 +33,8 @@ interface Platform {
      */
     @Composable
     fun sendNotification(title: String, message: String)
+
+    fun dataStorePath(): String
 
     /**
      * @return The formatted battery level as a [String].
