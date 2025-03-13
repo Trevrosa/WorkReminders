@@ -4,7 +4,9 @@ import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import org.trevor.pcup.Either
 
 @Serializable
 data class SyncSummary(val data: UserData, val failed: UInt)
@@ -29,12 +31,12 @@ suspend fun syncUserData(
     client: HttpClient,
     currentData: UserData?,
     sessionId: String
-): SyncSummary? {
+): Either<SyncSummary, JsonElement>? {
     val origTag = Logger.tag
     Logger.setTag("syncUserData")
 
     Logger.d("sending request")
-    val response = post(client, "${BASE_URL}/sync/$sessionId", encodeOption(currentData))
+    val response = client.tryJsonPost("${BASE_URL}/sync/$sessionId", encodeOption(currentData))
     val result: JsonObject? = handleResponse(response)
 
     Logger.setTag(origTag)

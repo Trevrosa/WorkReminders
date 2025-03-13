@@ -11,12 +11,10 @@ import org.trevor.pcup.CenteringColumn
 import org.trevor.pcup.Platform
 
 @Composable
-fun Settings(platform: Platform) {
+fun Settings(httpClient: HttpClient, platform: Platform) {
     CenteringColumn(arrangement = Arrangement.spacedBy(3.dp)) {
         Text("Settings")
         Logger.setTag("Settings")
-        // FIXME: move this to App.kt
-        val httpClient = remember { HttpClient() }
 
 //        var input by rememberSaveable { mutableStateOf("") }
 //        val setInput = { s: String -> if (s.length <= 10) input = s }

@@ -32,8 +32,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.stringPreferencesKey
+import io.ktor.client.HttpClient
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -41,6 +44,7 @@ import okio.Path.Companion.toPath
 import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.trevor.pcup.backend.validateSession
 import org.trevor.pcup.screens.Home
 import org.trevor.pcup.screens.Limits
 import org.trevor.pcup.screens.Login
@@ -169,7 +173,7 @@ private enum class SlideSide {
 }
 
 @Composable
-private fun LoggedIn(platform: Platform) {
+private fun LoggedIn(httpClient: HttpClient, platform: Platform) {
     var home by remember { mutableStateOf(true) }
     var limits by remember { mutableStateOf(false) }
     var settings by remember { mutableStateOf(false) }
@@ -226,46 +230,53 @@ private fun LoggedIn(platform: Platform) {
             visible = settings,
             enter = slideInHorizontally(initialOffsetX = { fw -> fw.getOffset(SlideSide.FromRight) }),
         ) {
-            Settings(platform)
+            Settings(httpClient, platform)
         }
     }
 }
 
 // FIXME: this needs to be session id key
-val LOGGED_IN_KEY = booleanPreferencesKey("logged_in")
+val SESSION_ID_KEY = stringPreferencesKey("session_id")
+
+suspend fun checkSessionValid(httpClient: HttpClient, dataStore: DataStore<Preferences>): Boolean {
+    val sessionIdFlow =
+        dataStore.data.map { prefs ->
+            prefs[SESSION_ID_KEY]
+        }
+
+    val sessionId = sessionIdFlow.firstOrNull() ?: return false
+    return validateSession(httpClient, sessionId)
+}
+
+fun Platform.getDataStore(): DataStore<Preferences> {
+    return PreferenceDataStoreFactory.createWithPath(produceFile = {
+        this.dataStorePath().toPath()
+    })
+}
 
 @Composable
 @Preview
-private fun AppInner() {
+@Suppress("NAME_SHADOWING")
+fun AppInner(httpClient: HttpClient? = null, platform: Platform? = null) {
     // Do platform-specific work.
-    val platform = getPlatform()
+    val platform = platform ?: getPlatform();
+    val httpClient = httpClient ?: remember { HttpClient() }
 
     // FIXME: this needs to check if the session is actually valid.
-    var loggedIn: Boolean by remember { mutableStateOf(false) }
+    var sessionValid: Boolean by remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
-        val dataStore =
-            PreferenceDataStoreFactory.createWithPath(produceFile = {
-                platform.dataStorePath().toPath()
-            })
-
-
-        val loggedInFlow =
-            dataStore.data.map { prefs ->
-                prefs[LOGGED_IN_KEY] ?: false
-            }
-
         coroutineScope.launch {
-            loggedIn = loggedInFlow.firstOrNull() ?: false
+            sessionValid = checkSessionValid(httpClient, platform.getDataStore())
         }
     }
 
-    if (loggedIn) {
+    if (sessionValid) {
         // TODO: pass the session here too?
-        LoggedIn(platform)
+        LoggedIn(httpClient, platform)
     } else {
         // TODO: show different messages if session timed out / not logged in ever
-        Login()
+        Login(httpClient, platform)
     }
 }

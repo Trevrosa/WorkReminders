@@ -2,6 +2,7 @@ package org.trevor.pcup.backend
 
 import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
@@ -10,18 +11,29 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
+import org.trevor.pcup.Either
 
 // FIXME: change as needed
 // 10.0.2.2 is host localhost for android emulator
 internal const val BASE_URL = "https://pcup.trevrosa.dev"
 
-suspend fun post(client: HttpClient, url: String, body: String): HttpResponse? {
+suspend fun HttpClient.tryGet(url: String): HttpResponse? {
     return try {
-        client.post(url) {
+        this.get(url)
+    } catch (e: Exception) {
+        Logger.e("got err: $e")
+        null
+    }
+}
+
+suspend fun HttpClient.tryJsonPost(url: String, jsonBody: String = ""): HttpResponse? {
+    return try {
+        this.post(url) {
             contentType(ContentType.Application.Json)
-            setBody(body)
+            setBody(jsonBody)
         }
     } catch (e: Exception) {
         Logger.e("got err: $e")
@@ -30,23 +42,23 @@ suspend fun post(client: HttpClient, url: String, body: String): HttpResponse? {
 }
 
 /**
- * Deserialize `serde_json`-style `Result`s to a [T].
+ * Deserialize `serde_json`-style `Result`s to a [T] or the error.
  *
- * @return The deserialized type.
+ * @return The deserialized type or the error as a [JsonElement], represented as an [Either].
  * @param obj The nullable [JsonObject] to be deserialized.
  */
 @Suppress("NAME_SHADOWING")
-inline fun <reified T> handleResult(obj: JsonObject?): T? {
+inline fun <reified T> handleResult(obj: JsonObject?): Either<T, JsonElement>? {
     val obj = obj ?: return null
 
     // handle the Ok and Err variants separately.
     return obj["Ok"]?.let { e ->
         // its Ok! we can get the T straight from it.
-        Json.decodeFromJsonElement(e)
+        Either.Left(Json.decodeFromJsonElement(e))
     } ?: obj["Err"]?.let { e ->
         // its an Err... lets say so.
         Logger.e("got err: $e", tag = "handleResponse")
-        null
+        Either.Right(e)
     }
 }
 
