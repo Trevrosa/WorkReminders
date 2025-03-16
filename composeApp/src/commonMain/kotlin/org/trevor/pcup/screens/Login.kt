@@ -9,21 +9,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.trevor.pcup.AppInner
 import org.trevor.pcup.CenteringColumn
 import org.trevor.pcup.Either
-import org.trevor.pcup.Platform
 import org.trevor.pcup.backend.AuthRequest
 import org.trevor.pcup.backend.UserSession
 import org.trevor.pcup.backend.authenticate
@@ -31,7 +29,8 @@ import org.trevor.pcup.backend.authenticate
 // FIXME: this needs to do auth through api, then store the session in datastore
 @Composable
 @Preview
-fun Login(httpClient: HttpClient, platform: Platform) {
+fun Login(httpClient: HttpClient) {
+    Logger.setTag("Login")
     CenteringColumn {
         Text("Log In", fontSize = 20.sp, fontWeight = FontWeight.Bold)
 
@@ -47,36 +46,49 @@ fun Login(httpClient: HttpClient, platform: Platform) {
         val setPassword = { s: String -> if (s.length <= 64) password = s }
         TextField(password, setPassword, placeholder = { Text("password") })
 
+        Spacer(Modifier.height(10.dp))
+
         var error by remember { mutableStateOf("") }
         if (error.isNotEmpty()) {
             Text(error)
         }
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(10.dp))
 
         var clicked by remember { mutableStateOf(false) }
-        var clickedOld by remember { mutableStateOf(false) }
 
-        Button(onClick = { clickedOld = clicked; clicked = !clicked }) { Text("submit") }
+        Button(onClick = { clicked = true }) { Text("submit") }
 
         // need this because we need @Composable
-        if (clicked != clickedOld) {
+        if (clicked) {
+            clicked = false;
             var session: Either<UserSession, JsonElement>? by remember { mutableStateOf(null) }
-            rememberCoroutineScope().launch {
+
+            runBlocking {
+                Logger.i("authenticating on click")
                 session = authenticate(httpClient, AuthRequest(username, password))
             }
 
-            val sessionOk = session?.left()
-            val sessionErr = session?.right()
+            Logger.i("coroutine done")
+            if (session != null) {
+                val sessionOk = session?.left()
+                val sessionErr = session?.right()
 
-            if (sessionOk != null) {
-                AppInner(httpClient, platform)
-            } else {
-                error = try {
-                    Json.encodeToString(sessionErr!!)
-                } catch (e: Exception) {
-                    "failed to parse err json"
+                if (sessionOk == null) {
+                    error = try {
+                        val e = Json.encodeToString(sessionErr!!)
+                        Logger.i("set error message")
+                        e
+                    } catch (e: Exception) {
+                        Logger.e("could not parse err json: $e")
+                        "failed to parse err json"
+                    }
+                } else {
+                    Logger.i("received session")
+
                 }
+            } else {
+                Logger.e("session result was null")
             }
         }
     }

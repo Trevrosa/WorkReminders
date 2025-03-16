@@ -24,7 +24,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,7 +38,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.vectorResource
@@ -173,7 +171,7 @@ private enum class SlideSide {
 }
 
 @Composable
-private fun LoggedIn(httpClient: HttpClient, platform: Platform) {
+fun LoggedIn(httpClient: HttpClient, platform: Platform) {
     var home by remember { mutableStateOf(true) }
     var limits by remember { mutableStateOf(false) }
     var settings by remember { mutableStateOf(false) }
@@ -248,28 +246,30 @@ suspend fun checkSessionValid(httpClient: HttpClient, dataStore: DataStore<Prefe
     return validateSession(httpClient, sessionId)
 }
 
+object MyDataStore {
+    lateinit var inner: DataStore<Preferences>
+}
+
 fun Platform.getDataStore(): DataStore<Preferences> {
     return PreferenceDataStoreFactory.createWithPath(produceFile = {
         this.dataStorePath().toPath()
     })
 }
 
-@Composable
 @Preview
-@Suppress("NAME_SHADOWING")
-fun AppInner(httpClient: HttpClient? = null, platform: Platform? = null) {
+@Composable
+fun AppInner() {
     // Do platform-specific work.
-    val platform = platform ?: getPlatform();
-    val httpClient = httpClient ?: remember { HttpClient() }
+    val platform = getPlatform();
+    val httpClient = remember { HttpClient() }
+
+    MyDataStore.inner = platform.getDataStore()
 
     // FIXME: this needs to check if the session is actually valid.
     var sessionValid: Boolean by remember { mutableStateOf(false) }
 
-    val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
-        coroutineScope.launch {
-            sessionValid = checkSessionValid(httpClient, platform.getDataStore())
-        }
+        sessionValid = checkSessionValid(httpClient, MyDataStore.inner)
     }
 
     if (sessionValid) {
@@ -277,6 +277,6 @@ fun AppInner(httpClient: HttpClient? = null, platform: Platform? = null) {
         LoggedIn(httpClient, platform)
     } else {
         // TODO: show different messages if session timed out / not logged in ever
-        Login(httpClient, platform)
+        Login(httpClient)
     }
 }
