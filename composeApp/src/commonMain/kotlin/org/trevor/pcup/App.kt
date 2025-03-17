@@ -1,112 +1,52 @@
 package org.trevor.pcup
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
-import androidx.compose.ui.zIndex
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
+import cafe.adriel.voyager.navigator.tab.CurrentTab
+import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
+import cafe.adriel.voyager.navigator.tab.Tab
+import cafe.adriel.voyager.navigator.tab.TabNavigator
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import okio.Path.Companion.toPath
 import org.jetbrains.compose.resources.imageResource
-import org.jetbrains.compose.resources.vectorResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.trevor.pcup.backend.validateSession
-import org.trevor.pcup.screens.Home
-import org.trevor.pcup.screens.Limits
+import org.trevor.pcup.screens.HomeTab
+import org.trevor.pcup.screens.LimitsTab
 import org.trevor.pcup.screens.Login
-import org.trevor.pcup.screens.Settings
+import org.trevor.pcup.screens.SettingsTab
 import workreminders.composeapp.generated.resources.Res
-import workreminders.composeapp.generated.resources.home
-import workreminders.composeapp.generated.resources.settings
 import workreminders.composeapp.generated.resources.skribi
-import workreminders.composeapp.generated.resources.today
-
-/**
- * A function that returns a [Unit]
- */
-typealias Fun = () -> Unit
-
-@Composable
-@Preview
-fun NavBar(go1: Fun, go2: Fun, go3: Fun) {
-    /**
-     * Modifier for each button.
-     */
-    @Composable
-    fun RowScope.NavBarButton(onClick: Fun) =
-        Modifier
-            .clickable(onClick = onClick)
-            .background(MaterialTheme.colors.primary)
-            // make each row item equal size, filling the whole width.
-            .fillMaxSize()
-            .weight(1F)
-
-    /**
-     * Create an [Image] with NavBarItem as its starting modifiers.
-     */
-    @Composable
-    fun NavBarImage(vector: ImageVector, description: String?, modifier: Modifier? = null) {
-        if (modifier == null) {
-            Image(vector, description)
-        } else {
-            Image(vector, description, modifier)
-        }
-    }
-
-    Box(Modifier.fillMaxSize()) {
-        Row(
-            Modifier
-                // icon height is 24 dp
-                .fillMaxWidth().height((24 + 12).dp)
-                .align(Alignment.BottomStart),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.Bottom,
-        ) {
-            Box(NavBarButton(go1), contentAlignment = Alignment.BottomCenter) {
-                NavBarImage(vectorResource(Res.drawable.home), "home icon")
-            }
-            Box(NavBarButton(go2), contentAlignment = Alignment.BottomCenter) {
-                NavBarImage(vectorResource(Res.drawable.today), "calendar icon")
-            }
-            Box(NavBarButton(go3), contentAlignment = Alignment.BottomCenter) {
-                NavBarImage(vectorResource(Res.drawable.settings), "settings icon")
-            }
-        }
-    }
-}
 
 /**
  * The home screen of the app.
@@ -140,101 +80,6 @@ fun Test() {
     }
 }
 
-/**
- * To be multiplied by a device's full width.
- */
-@Suppress("unused")
-private enum class SlideSide {
-    FromLeft,
-    FromRight;
-
-    /**
-     * [FromLeft] is -1, [FromRight] is 1.
-     *
-     * @param i The [Int] to be converted.
-     * @return The converted [SlideSide], or `null` if [i] is not -1 or 1.
-     */
-    fun fromInt(i: Int): SlideSide? =
-        when (i) {
-            -1 -> FromLeft
-            1 -> FromRight
-            else -> null
-        }
-
-    /**
-     * [FromLeft] is -1, [FromRight] is 1.
-     */
-    fun toInt(): Int =
-        when (this) {
-            FromLeft -> -1
-            FromRight -> 1
-        }
-}
-
-@Composable
-fun LoggedIn(httpClient: HttpClient, platform: Platform) {
-    var home by remember { mutableStateOf(true) }
-    var limits by remember { mutableStateOf(false) }
-    var settings by remember { mutableStateOf(false) }
-
-    var limitsSlideSide by remember { mutableStateOf(SlideSide.FromRight) }
-
-    val go1 = {
-        home = true; limits = false; settings = false; limitsSlideSide = SlideSide.FromRight
-    }
-    val go2 = {
-        home = false; limits = true; settings = false
-    }
-    val go3 = {
-        home = false; limits = false; settings = true; limitsSlideSide = SlideSide.FromLeft
-    }
-
-    MaterialTheme {
-        // TODO: remove later
-        val startBattery = remember { platform.batteryString() }
-        Text(
-            startBattery,
-            modifier = Modifier.zIndex(999F).padding(1.dp, 0.dp, 0.dp, 0.dp)
-                .background(Color.LightGray)
-        )
-
-        NavBar(go1, go2, go3)
-
-        /**
-         * Assumes [this] is the device's screen's full width.
-         *
-         * @return Half of [this] multiplied by [slideSide].
-         * @param slideSide The side to slide from.
-         */
-        fun Int.getOffset(slideSide: SlideSide) = this * slideSide.toInt() / 2
-
-        AnimatedVisibility(
-            modifier = Modifier.fillMaxSize(),
-            visible = home,
-            enter = slideInHorizontally(initialOffsetX = { fw -> fw.getOffset(SlideSide.FromLeft) }),
-        ) {
-            Home()
-        }
-
-        AnimatedVisibility(
-            modifier = Modifier.fillMaxSize(),
-            visible = limits,
-            enter = slideInHorizontally(initialOffsetX = { fw -> fw.getOffset(limitsSlideSide) }),
-        ) {
-            Limits()
-        }
-
-        AnimatedVisibility(
-            modifier = Modifier.fillMaxSize(),
-            visible = settings,
-            enter = slideInHorizontally(initialOffsetX = { fw -> fw.getOffset(SlideSide.FromRight) }),
-        ) {
-            Settings(httpClient, platform)
-        }
-    }
-}
-
-// FIXME: this needs to be session id key
 val SESSION_ID_KEY = stringPreferencesKey("session_id")
 
 suspend fun checkSessionValid(httpClient: HttpClient, dataStore: DataStore<Preferences>): Boolean {
@@ -255,6 +100,48 @@ fun Platform.getDataStore(): DataStore<Preferences> {
     })
 }
 
+@Composable
+fun MyTabNavigator(httpClient: HttpClient, platform: Platform) {
+    return TabNavigator(HomeTab) {
+        Scaffold(
+            content = {
+                CurrentTab()
+            },
+            bottomBar = {
+                BottomNavigation(Modifier.fillMaxWidth().height((24 + 16).dp)) {
+                    TabNavigationItem(HomeTab)
+                    TabNavigationItem(LimitsTab)
+                    TabNavigationItem(SettingsTab(httpClient, platform))
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun RowScope.TabNavigationItem(tab: Tab) {
+    val tabNavigator = LocalTabNavigator.current
+
+    BottomNavigationItem(
+        selected = tabNavigator.current == tab,
+        onClick = { tabNavigator.current = tab },
+        icon = {
+            Icon(
+                painter = tab.options.icon!!,
+                contentDescription = tab.options.title,
+                tint = Color.White
+            )
+        }
+    )
+}
+
+@Composable
+fun AppEntry(httpClient: HttpClient, platform: Platform) {
+    MaterialTheme {
+        MyTabNavigator(httpClient, platform)
+    }
+}
+
 @Preview
 @Composable
 fun AppInner() {
@@ -267,10 +154,10 @@ fun AppInner() {
         DataStore = platform.getDataStore()
     }
 
-    // FIXME: this needs to check if the session is actually valid.
     var sessionValid: Boolean? by remember { mutableStateOf(null) }
 
     LaunchedEffect(Unit) {
+        // FIXME: remove this when done
         sessionValid = checkSessionValid(httpClient, DataStore)
     }
 
@@ -280,10 +167,11 @@ fun AppInner() {
             Text("loading! (ppk)", fontSize = 9.em)
         }
     } else if (sessionValid as Boolean) {
-        // TODO: pass the session here too?
-        LoggedIn(httpClient, platform)
+        AppEntry(httpClient, platform)
     } else {
-        // TODO: show different messages if session timed out / not logged in ever
-        Login(httpClient)
+        // TODO: make the error messages more pretty
+        if (Login(httpClient)) {
+            AppEntry(httpClient, platform)
+        }
     }
 }

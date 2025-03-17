@@ -33,11 +33,11 @@ import org.trevor.pcup.backend.AuthRequest
 import org.trevor.pcup.backend.UserSession
 import org.trevor.pcup.backend.authenticate
 
-// FIXME: this needs to do auth through api, then store the session in datastore
 @Composable
 @Preview
-fun Login(httpClient: HttpClient) {
+fun Login(httpClient: HttpClient): Boolean {
     Logger.setTag("Login")
+    var ok by remember { mutableStateOf(false) }
     CenteringColumn {
         Text("Log In", fontSize = 20.sp, fontWeight = FontWeight.Bold)
 
@@ -55,6 +55,7 @@ fun Login(httpClient: HttpClient) {
 
         Spacer(Modifier.height(10.dp))
 
+        // TODO: change this to status and give ok messages as well as error.
         var error by remember { mutableStateOf("") }
         if (error.isNotEmpty()) {
             Box(Modifier.background(Color.Red.copy(0.8f)).padding(1.dp)) {
@@ -101,10 +102,12 @@ fun Login(httpClient: HttpClient) {
                         }
                         Logger.d("set datastore session")
                     }
+                    ok = true
                 }
             } else {
                 Logger.e("session result was null")
             }
         }
     }
+    return ok
 }

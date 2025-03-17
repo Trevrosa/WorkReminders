@@ -36,6 +36,9 @@ interface Platform {
 
     fun dataStorePath(): String
 
+    @Composable
+    fun restart()
+
     /**
      * @return The formatted battery level as a [String].
      */

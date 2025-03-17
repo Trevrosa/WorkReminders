@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Context.BATTERY_SERVICE
 import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Context.USAGE_STATS_SERVICE
+import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.BatteryManager
 import android.os.Build
@@ -31,6 +32,7 @@ import org.jetbrains.compose.resources.imageResource
 import workreminders.composeapp.generated.resources.Res
 import workreminders.composeapp.generated.resources.skribi
 import kotlin.time.Duration.Companion.milliseconds
+
 
 const val CHANNEL_ID = "defaultChannel"
 
@@ -94,6 +96,20 @@ class AndroidPlatform(private val ctx: Context) : Platform {
     }
 
     override fun dataStorePath(): String = ctx.filesDir.resolve(dataStoreName).absolutePath
+
+    @Composable
+    override fun restart() {
+        val intent = ctx.packageManager.getLaunchIntentForPackage(ctx.packageName)
+        val componentName = intent!!.component
+        val mainIntent = Intent.makeRestartActivityTask(componentName)
+
+        // Required for API 34 and later
+        // Ref: https://developer.android.com/about/versions/14/behavior-changes-14#safer-intents
+        mainIntent.setPackage(ctx.packageName)
+        ctx.startActivity(mainIntent)
+
+        Runtime.getRuntime().exit(0)
+    }
 
     @Composable
     // TODO: allow caller to specify notification icon

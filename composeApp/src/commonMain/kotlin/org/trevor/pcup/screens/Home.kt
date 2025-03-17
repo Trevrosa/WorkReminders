@@ -21,9 +21,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.tab.Tab
+import cafe.adriel.voyager.navigator.tab.TabOptions
 import co.touchlab.kermit.Logger
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.imageResource
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.trevor.pcup.ComposeImage
 import org.trevor.pcup.Either
@@ -31,10 +34,29 @@ import org.trevor.pcup.Graph
 import org.trevor.pcup.Image
 import org.trevor.pcup.rounded
 import workreminders.composeapp.generated.resources.Res
+import workreminders.composeapp.generated.resources.home
 import workreminders.composeapp.generated.resources.skribi
 import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
+
+object HomeTab : Tab {
+    override val options: TabOptions
+        @Composable
+        get() {
+            val icon = painterResource(Res.drawable.home)
+            return remember {
+                TabOptions(
+                    index = 0u,
+                    "Home",
+                    icon = icon
+                )
+            }
+        }
+
+    @Composable
+    override fun Content() = Home()
+}
 
 @Composable
 fun ChartPart(apps: Collection<App>) {
