@@ -1,14 +1,24 @@
 package org.trevor.pcup.screens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.datastore.preferences.core.edit
 import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
+import kotlinx.coroutines.runBlocking
 import org.trevor.pcup.CenteringColumn
+import org.trevor.pcup.DataStore
 import org.trevor.pcup.Platform
+import org.trevor.pcup.SESSION_ID_KEY
 
 @Composable
 fun Settings(httpClient: HttpClient, platform: Platform) {
@@ -16,6 +26,21 @@ fun Settings(httpClient: HttpClient, platform: Platform) {
         Text("Settings")
         Logger.setTag("Settings")
 
+        var logout by remember { mutableStateOf(false) }
+        Button(
+            colors = ButtonDefaults.buttonColors(Color.Red),
+            onClick = { logout = true }
+        ) { Text("log out ;(", color = Color.White) }
+
+        if (logout) {
+            logout = false
+            Logger.i("user logged out, removing stored session")
+            runBlocking {
+                DataStore.edit {
+                    it.remove(SESSION_ID_KEY)
+                }
+            }
+        }
 //        var input by rememberSaveable { mutableStateOf("") }
 //        val setInput = { s: String -> if (s.length <= 10) input = s }
 //

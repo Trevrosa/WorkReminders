@@ -75,7 +75,7 @@ class AndroidPlatform(private val ctx: Context) : Platform {
             return battery.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
         }
 
-    // TODO: test this works
+    // TODO: find out why this doesn't work
     override fun getScreenTimeData(): List<ScreenTime>? {
         val origTag = Logger.tag
         Logger.setTag("getScreenTimeData")

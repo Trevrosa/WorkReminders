@@ -1,7 +1,10 @@
 package org.trevor.pcup.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -11,9 +14,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.edit
 import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.runBlocking
@@ -21,7 +26,9 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.trevor.pcup.CenteringColumn
+import org.trevor.pcup.DataStore
 import org.trevor.pcup.Either
+import org.trevor.pcup.SESSION_ID_KEY
 import org.trevor.pcup.backend.AuthRequest
 import org.trevor.pcup.backend.UserSession
 import org.trevor.pcup.backend.authenticate
@@ -50,7 +57,9 @@ fun Login(httpClient: HttpClient) {
 
         var error by remember { mutableStateOf("") }
         if (error.isNotEmpty()) {
-            Text(error)
+            Box(Modifier.background(Color.Red.copy(0.8f)).padding(1.dp)) {
+                Text(error, color = Color.White)
+            }
         }
 
         Spacer(Modifier.height(10.dp))
@@ -62,6 +71,7 @@ fun Login(httpClient: HttpClient) {
         // need this because we need @Composable
         if (clicked) {
             clicked = false;
+            error = ""
             var session: Either<UserSession, JsonElement>? by remember { mutableStateOf(null) }
 
             runBlocking {
@@ -84,8 +94,13 @@ fun Login(httpClient: HttpClient) {
                         "failed to parse err json"
                     }
                 } else {
-                    Logger.i("received session")
-
+                    Logger.i("received session, ok!")
+                    runBlocking {
+                        DataStore.edit {
+                            it[SESSION_ID_KEY] = sessionOk.id
+                        }
+                        Logger.d("set datastore session")
+                    }
                 }
             } else {
                 Logger.e("session result was null")

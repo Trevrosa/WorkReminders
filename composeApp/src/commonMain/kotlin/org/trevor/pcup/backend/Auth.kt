@@ -43,7 +43,7 @@ suspend fun validateSession(client: HttpClient, sessionId: String): Boolean {
     Logger.setTag("validateSession")
 
     Logger.d("sending request")
-    val response = client.tryGet("$BASE_URL/auth/validate_session/{sessionId}")
+    val response = client.tryGet("$BASE_URL/auth/validate_session/$sessionId")
     val result = response?.bodyAsText() == "true"
 
     Logger.setTag(origTag)

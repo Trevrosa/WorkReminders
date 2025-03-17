@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.zIndex
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
@@ -246,9 +247,7 @@ suspend fun checkSessionValid(httpClient: HttpClient, dataStore: DataStore<Prefe
     return validateSession(httpClient, sessionId)
 }
 
-object MyDataStore {
-    lateinit var inner: DataStore<Preferences>
-}
+lateinit var DataStore: DataStore<Preferences>
 
 fun Platform.getDataStore(): DataStore<Preferences> {
     return PreferenceDataStoreFactory.createWithPath(produceFile = {
@@ -263,16 +262,24 @@ fun AppInner() {
     val platform = getPlatform();
     val httpClient = remember { HttpClient() }
 
-    MyDataStore.inner = platform.getDataStore()
-
-    // FIXME: this needs to check if the session is actually valid.
-    var sessionValid: Boolean by remember { mutableStateOf(false) }
-
     LaunchedEffect(Unit) {
-        sessionValid = checkSessionValid(httpClient, MyDataStore.inner)
+        // set once, then only use the set value
+        DataStore = platform.getDataStore()
     }
 
-    if (sessionValid) {
+    // FIXME: this needs to check if the session is actually valid.
+    var sessionValid: Boolean? by remember { mutableStateOf(null) }
+
+    LaunchedEffect(Unit) {
+        sessionValid = checkSessionValid(httpClient, DataStore)
+    }
+
+    if (sessionValid == null) {
+        // the launched effect hasn't run yet.
+        CenteringColumn {
+            Text("loading! (ppk)", fontSize = 9.em)
+        }
+    } else if (sessionValid as Boolean) {
         // TODO: pass the session here too?
         LoggedIn(httpClient, platform)
     } else {
