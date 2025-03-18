@@ -55,9 +55,9 @@ fun Login(httpClient: HttpClient): Boolean {
 
         Spacer(Modifier.height(10.dp))
 
-        // TODO: change this to status and give ok messages as well as error.
         var error by remember { mutableStateOf("") }
-        if (error.isNotEmpty()) {
+        var showError by remember { mutableStateOf(false) }
+        if (showError) {
             Box(Modifier.background(Color.Red.copy(0.8f)).padding(1.dp)) {
                 Text(error, color = Color.White)
             }
@@ -72,7 +72,7 @@ fun Login(httpClient: HttpClient): Boolean {
         // need this because we need @Composable
         if (clicked) {
             clicked = false;
-            error = ""
+            showError = false
             var session: Either<UserSession, JsonElement>? by remember { mutableStateOf(null) }
 
             runBlocking {
@@ -89,6 +89,7 @@ fun Login(httpClient: HttpClient): Boolean {
                     error = try {
                         val e = Json.encodeToString(sessionErr!!)
                         Logger.i("set error message")
+                        showError = true
                         e
                     } catch (e: Exception) {
                         Logger.e("could not parse err json: $e")
@@ -102,6 +103,7 @@ fun Login(httpClient: HttpClient): Boolean {
                         }
                         Logger.d("set datastore session")
                     }
+                    showError = false
                     ok = true
                 }
             } else {

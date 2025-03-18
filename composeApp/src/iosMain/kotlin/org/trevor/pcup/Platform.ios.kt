@@ -14,11 +14,17 @@ import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSError
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSUserDomainMask
+import platform.UIKit.UIAlertAction
+import platform.UIKit.UIAlertActionStyleDefault
+import platform.UIKit.UIAlertController
+import platform.UIKit.UIAlertControllerStyleAlert
 import platform.UIKit.UIDevice
+import platform.UIKit.UIViewController
 import platform.UserNotifications.UNAuthorizationOptionAlert
 import platform.UserNotifications.UNMutableNotificationContent
 import platform.UserNotifications.UNNotificationRequest
 import platform.UserNotifications.UNUserNotificationCenter
+import platform.posix.exit
 
 // @Composable unused here, but required because of the `expect`ed function
 @Composable
@@ -50,6 +56,27 @@ class IOSPlatform : Platform {
 //        platform.ScreenTime.STScreenTimeConfiguration
         Logger.e("Not yet implemented", tag = "getScreenTimeData")
         return null
+    }
+
+    /**
+     * There is no way to restart the app on ios.
+     *
+     * This function instead alerts the user that we will be exiting, and tells them to reopen it.
+     */
+    @Composable
+    override fun restart() {
+        val alert = UIAlertController.alertControllerWithTitle(
+            "exiting",
+            "i am exiting! please reopen the app.",
+            UIAlertControllerStyleAlert
+        )
+        val alertAction = UIAlertAction.actionWithTitle("OK", UIAlertActionStyleDefault) {
+            Logger.d("alert ${it?.description()} pressed OK")
+            exit(-1)
+        }
+        alert.addAction(alertAction)
+
+        UIViewController().presentViewController(alert, true, null)
     }
 
     /**
