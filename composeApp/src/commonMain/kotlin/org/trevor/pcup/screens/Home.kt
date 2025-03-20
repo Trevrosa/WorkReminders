@@ -65,7 +65,7 @@ fun ChartPart(apps: Collection<App>) {
     }
 }
 
-class App(val name: String, val time: Duration, val icon: ComposeImage)
+data class App(val name: String, val time: Duration, val icon: ComposeImage)
 
 @Composable
 fun ListPart(apps: Collection<App>) {

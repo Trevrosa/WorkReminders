@@ -153,22 +153,25 @@ fun AppInner() {
     val platform = getPlatform();
     val httpClient = remember { HttpClient() }
 
+    var loading by remember { mutableStateOf("loading!") }
+
     LaunchedEffect(Unit) {
         // set once, then only use the set value
         DataStore = platform.getDataStore()
+        loading = "getting datastore"
     }
 
     var sessionValid: Boolean? by remember { mutableStateOf(null) }
 
     LaunchedEffect(Unit) {
-        // FIXME: remove this when done
+        loading = "checking session"
         sessionValid = checkSessionValid(httpClient, DataStore)
     }
 
     if (sessionValid == null) {
         // the launched effect hasn't run yet.
         CenteringColumn {
-            Text("loading! (ppk)", fontSize = 9.em)
+            Text(loading, fontSize = 5.em)
         }
     } else if (sessionValid as Boolean) {
         AppEntry(httpClient, platform)

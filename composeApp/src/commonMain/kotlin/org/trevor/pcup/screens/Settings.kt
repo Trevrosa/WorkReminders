@@ -85,6 +85,7 @@ fun Settings(httpClient: HttpClient, platform: Platform) {
             }
         }
 
+        // FIXME: make this better
         Column(
             Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
