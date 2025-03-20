@@ -94,7 +94,7 @@ fun Settings(httpClient: HttpClient, platform: Platform) {
             if (synced != null) {
                 for ((idx, debug) in synced!!.debug.withIndex()) {
                     Box(Modifier.border(2.dp, Color.Gray)) {
-                        Text("debug[$idx]: $debug")
+                        Text("debug[$idx]: \"$debug\"")
                     }
                 }
             } else {
