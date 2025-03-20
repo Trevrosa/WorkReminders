@@ -12,7 +12,13 @@ import org.trevor.pcup.Either
 data class SyncSummary(val data: UserData, val failed: UInt)
 
 @Serializable
-data class UserData(@SerialName("app_usage") val appUsage: List<AppInfo>)
+data class UserDebug(val stored: String)
+
+@Serializable
+data class UserData(
+    @SerialName("app_usage") val appUsage: List<AppInfo>,
+    val debug: List<UserDebug>
+)
 
 @Serializable
 data class AppInfo(val name: String, val usage: UInt, val limit: UInt)

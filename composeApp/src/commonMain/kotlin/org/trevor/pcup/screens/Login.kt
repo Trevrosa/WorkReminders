@@ -44,7 +44,7 @@ fun Login(httpClient: HttpClient): Boolean {
         Spacer(Modifier.height(20.dp))
 
         var username by remember { mutableStateOf("") }
-        val setUsername = { s: String -> if (s.length <= 64) username = s }
+        val setUsername = { s: String -> username = s }
         TextField(username, setUsername, placeholder = { Text("username") })
 
         Spacer(Modifier.height(10.dp))

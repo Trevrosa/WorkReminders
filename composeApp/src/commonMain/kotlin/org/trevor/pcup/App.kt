@@ -92,6 +92,10 @@ suspend fun checkSessionValid(httpClient: HttpClient, dataStore: DataStore<Prefe
     return validateSession(httpClient, sessionId)
 }
 
+suspend fun getSession(): String? {
+    return DataStore.data.map { it[SESSION_ID_KEY] }.firstOrNull()
+}
+
 lateinit var DataStore: DataStore<Preferences>
 
 fun Platform.getDataStore(): DataStore<Preferences> {
