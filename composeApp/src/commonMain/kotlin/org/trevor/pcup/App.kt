@@ -114,7 +114,7 @@ fun MyTabNavigator(httpClient: HttpClient, platform: Platform) {
             bottomBar = {
                 BottomNavigation(Modifier.fillMaxWidth().height((24 + 16).dp)) {
                     TabNavigationItem(HomeTab)
-                    TabNavigationItem(LimitsTab)
+                    TabNavigationItem(LimitsTab(platform))
                     TabNavigationItem(SettingsTab(httpClient, platform))
                 }
             }

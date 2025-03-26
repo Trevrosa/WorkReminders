@@ -29,7 +29,6 @@ import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.trevor.pcup.ComposeImage
-import org.trevor.pcup.Either
 import org.trevor.pcup.Graph
 import org.trevor.pcup.Image
 import org.trevor.pcup.rounded
@@ -65,7 +64,7 @@ fun ChartPart(apps: Collection<App>) {
     }
 }
 
-data class App(val name: String, val time: Duration, val icon: ComposeImage)
+data class App(val name: String, val time: Duration, val icon: ComposeImage?)
 
 @Composable
 fun ListPart(apps: Collection<App>) {
@@ -94,11 +93,13 @@ fun AppRowItem(app: App) {
             horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
         ) {
             Spacer(Modifier.width(2.dp))
-            Image(
-                app.icon, "${app.name} icon",
-                modifier = Modifier.fillMaxHeight(0.8F).rounded(1.dp)
-            )
-            VerticalDivider()
+            if (app.icon != null) {
+                Image(
+                    app.icon, "${app.name} icon",
+                    modifier = Modifier.fillMaxHeight(0.8F).rounded(1.dp)
+                )
+                VerticalDivider()
+            }
             Text(app.name)
             VerticalDivider()
             Text(app.time.toString())
@@ -111,14 +112,17 @@ fun Home() {
     Column {
         val random = remember { Random(Clock.System.now().toEpochMilliseconds()) }
         val skribi = imageResource(Res.drawable.skribi)
+        fun aApp(name: String): App = App(name, random.nextInt(1, 60 * 5).minutes, null)
         val apps = remember {
-            List(5) {
-                App(
-                    "app${it + 1}",
-                    random.nextInt(1, 120).minutes,
-                    Either.Right(skribi)
-                )
-            }
+            listOf(
+                aApp("YouTube"),
+                aApp("Instagram"),
+                aApp("Safari"),
+                aApp("Snapchat"),
+                aApp("WhatsApp"),
+                aApp("Netflix"),
+                aApp("Spotify")
+            )
         }
 
         Logger.setTag("Home")

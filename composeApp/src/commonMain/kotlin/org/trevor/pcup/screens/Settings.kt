@@ -4,11 +4,13 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Checkbox
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
@@ -22,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.edit
 import cafe.adriel.voyager.navigator.tab.Tab
@@ -63,14 +66,78 @@ data class SettingsTab(val httpClient: HttpClient, val platform: Platform) : Tab
 @Composable
 fun Settings(httpClient: HttpClient, platform: Platform) {
     CenteringColumn(arrangement = Arrangement.spacedBy(3.dp)) {
-        Text("Settings")
+        Text("Settings", fontWeight = FontWeight.Bold)
         Logger.setTag("Settings")
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            var c by remember { mutableStateOf(false) };
+            Checkbox(c, { c = it });
+            if (c) {
+                Text("remember log in: enabled")
+            } else {
+                Text("remember log in: disabled")
+            }
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            var c by remember { mutableStateOf(false) };
+            Checkbox(c, { c = it });
+            if (c) {
+                Text("send notifications: enabled")
+            } else {
+                Text("send notifications: disabled")
+            }
+        }
+        Text("Synchronization", fontWeight = FontWeight.Bold)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            var c by remember { mutableStateOf(false) };
+            Checkbox(c, { c = it });
+            if (c) {
+                Text("sync screen time between devices: enabled")
+            } else {
+                Text("sync screen time between devices: disabled")
+            }
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            var c by remember { mutableStateOf(false) };
+            Checkbox(c, { c = it });
+            if (c) {
+                Text("sync settings between devices: enabled")
+            } else {
+                Text("sync settings between devices: disabled")
+            }
+        }
 
         var logout by remember { mutableStateOf(false) }
         Button(
             colors = ButtonDefaults.buttonColors(Color.Red),
             onClick = { logout = true }
-        ) { Text("log out ;(", color = Color.White) }
+        ) { Text("log out", color = Color.White) }
+
+        if (logout) {
+            logout = false
+            Logger.i("user logged out, removing stored session")
+            runBlocking {
+                DataStore.edit {
+                    it.remove(SESSION_ID_KEY)
+                }
+            }
+            platform.restart()
+        }
+
+        Spacer(Modifier.height(5.dp))
+        Text("sync debug information")
 
         var synced: UserData? by rememberSaveable { mutableStateOf(null) }
         LaunchedEffect(Unit) {
@@ -147,17 +214,6 @@ fun Settings(httpClient: HttpClient, platform: Platform) {
                     summary = "null"
                 }
             }
-        }
-
-        if (logout) {
-            logout = false
-            Logger.i("user logged out, removing stored session")
-            runBlocking {
-                DataStore.edit {
-                    it.remove(SESSION_ID_KEY)
-                }
-            }
-            platform.restart()
         }
 //        var input by rememberSaveable { mutableStateOf("") }
 //        val setInput = { s: String -> if (s.length <= 10) input = s }
