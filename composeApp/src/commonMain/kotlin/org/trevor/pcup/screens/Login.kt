@@ -45,13 +45,13 @@ fun Login(httpClient: HttpClient): Boolean {
 
         var username by remember { mutableStateOf("") }
         val setUsername = { s: String -> username = s }
-        TextField(username, setUsername, placeholder = { Text("username") })
+        TextField(username, setUsername, placeholder = { Text("username") }, singleLine = true)
 
         Spacer(Modifier.height(10.dp))
 
         var password by remember { mutableStateOf("") }
         val setPassword = { s: String -> if (s.length <= 64) password = s }
-        TextField(password, setPassword, placeholder = { Text("password") })
+        TextField(password, setPassword, placeholder = { Text("password") }, singleLine = true)
 
         Spacer(Modifier.height(10.dp))
 

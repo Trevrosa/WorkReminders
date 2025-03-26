@@ -14,7 +14,7 @@ import org.trevor.pcup.Either
 data class AuthRequest(val username: String, val password: String)
 
 @Serializable
-data class UserSession(@SerialName("user_id") val userId: UInt, val id: String)
+data class UserSession(val id: String, @SerialName("user_id") val userId: UInt)
 
 /**
  * Either create a new account with name [AuthRequest.username], or sign in with password [AuthRequest.password].
